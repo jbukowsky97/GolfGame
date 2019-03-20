@@ -12,9 +12,10 @@ export default class App {
     this.camera.position.z = 5;
 
     this.player = new Player();
-    // this.player.neutralPosture();
-    this.player.golfPosture();
-    this.player.swinging = true;
+    this.player.neutralPosture();
+    this.player.startWalking();
+    // this.player.golfPosture();
+    // this.player.swinging = true;
 
     this.scene.add( this.player );
 
@@ -35,8 +36,8 @@ export default class App {
   }
 
   render() {
-    // this.player.rotation.y -= 0.01;
-    this.player.rotation.y = 3;
+    this.player.rotation.y -= 0.02;
+    // this.player.rotation.y = 1.5;
     this.player.animate();
 
     this.renderer.render( this.scene, this.camera );
