@@ -1,4 +1,4 @@
-import { MeshPhongMaterial, Mesh, Group, CylinderBufferGeometry, BoxBufferGeometry, SphereBufferGeometry, Vector3} from 'three';
+import { MeshPhongMaterial, Mesh, Group, BoxBufferGeometry, SphereBufferGeometry, ConeBufferGeometry } from 'three';
 import Driver from './driver';
 
 const LEG_HEIGHT = 1.1;
@@ -10,6 +10,8 @@ const CHEST_HEIGHT = LEG_HEIGHT;
 const ARM_WIDTH = .15
 const ARM_HEIGHT = CHEST_HEIGHT;
 const HEAD_RADIUS = .3;
+const BILL_LENGTH = .4;
+const BILL_HEIGHT = .05;
 
 const LEG_POSITION_Y = LEG_HEIGHT;
 const WAIST_POSITION_Y = LEG_HEIGHT + WAIST_HEIGHT / 2;
@@ -50,7 +52,6 @@ export default class Player extends Group {
     const armMaterial = new MeshPhongMaterial({ color: 0xff0000 });
 
     this.leftArm = new Mesh(armGeometry, armMaterial);
-    this.leftArm.position.set(LEFT_ARM_POSITION_X, ARM_POSITION_Y, 0);
 
     this.rightArm = new Mesh(armGeometry, armMaterial);
     this.rightArm.position.set(RIGHT_ARM_POSITION_X, ARM_POSITION_Y, 0);
@@ -59,27 +60,32 @@ export default class Player extends Group {
     headGeometry.translate(0, HEAD_RADIUS, 0);
     const headMaterial = new MeshPhongMaterial({ color: 0xffd493 });
     this.head = new Mesh(headGeometry, headMaterial);
-    this.head.position.set(0, HEAD_POSITION_Y, 0);
+
+    const hatConeGeometry = new ConeBufferGeometry(HEAD_RADIUS, HEAD_RADIUS);
+    hatConeGeometry.translate(0, 2 * HEAD_RADIUS, 0);
+    const hatConeMaterial = new MeshPhongMaterial({ color: 0x2b2b2b });
+    this.hatCone = new Mesh(hatConeGeometry, hatConeMaterial);
+
+    const hatBillGeometry = new BoxBufferGeometry(3 / 2 * HEAD_RADIUS, BILL_HEIGHT, BILL_LENGTH);
+    hatBillGeometry.translate(0, 3 / 2 * HEAD_RADIUS + BILL_HEIGHT / 2, -HEAD_RADIUS);
+    const hatBillMaterial = new MeshPhongMaterial({ color: 0x2b2b2b });
+    this.hatBill = new Mesh(hatBillGeometry, hatBillMaterial);
 
     this.leftArmAndClub = new Group();
-
-    this.club = new Driver();
-    const fuck = new Vector3();
-    this.leftArm.getWorldPosition(fuck)
-    console.log(fuck);
-    this.club.position.set(fuck.x, fuck.y, fuck.z);
-    // this.club.position.set(0, ARM_POSITION_Y - ARM_HEIGHT + 0.4, -0.4);
-    this.club.rotation.x = UPPER_BODY_THETA;
-
+    this.leftArmAndClub.position.set(LEFT_ARM_POSITION_X, ARM_POSITION_Y, 0);
     this.leftArmAndClub.add(this.leftArm);
-    this.leftArmAndClub.add(this.club);
+
+    this.headGroup = new Group();
+    this.headGroup.position.set(0, HEAD_POSITION_Y, 0);
+    this.headGroup.add(this.head);
+    this.headGroup.add(this.hatCone);
+    this.headGroup.add(this.hatBill);
 
     this.upperBodyGroup = new Group();
     this.upperBodyGroup.add(this.chest);
     this.upperBodyGroup.add(this.leftArmAndClub);
     this.upperBodyGroup.add(this.rightArm);
-    this.upperBodyGroup.add(this.head);
-    // this.upperBodyGroup.add(this.club);
+    this.upperBodyGroup.add(this.headGroup);
     this.upperBodyGroup.position.set(0, UPPER_BODY_POSITION_Y, 0);
 
     this.add(this.leftLeg);
@@ -99,24 +105,26 @@ export default class Player extends Group {
   }
 
   neutralPosture() {
+    if (this.club) {
+      this.leftArmAndClub.remove(this.club);
+      this.club = null;
+    }
+
     this.upperBodyGroup.rotation.x = 0.0;
     this.upperBodyGroup.rotation.y = 0.0;
-    this.leftArm.rotation.x = 0.0;
+    this.leftArmAndClub.rotation.x = 0.0;
     this.rightArm.rotation.x = 0.0;
-    this.leftArm.rotation.z = 0.0;
+    this.leftArmAndClub.rotation.z = 0.0;
     this.rightArm.rotation.z = 0.0;
-    this.leftArm.scale.set(1, 1, 1);
+    this.leftArmAndClub.scale.set(1, 1, 1);
     this.rightArm.scale.set(1, 1, 1);
     this.head.rotation.y = 0.0;
   }
 
-  golfPosture() {
-    // club.position.set(0, 0.4, -CHEST_HEIGHT * Math.cos(UPPER_BODY_THETA) + 0.5);
-    // club.rotation.y = 1.5708;
-    // club.rotation.z += UPPER_BODY_THETA;
-    // this.upperBodyGroup.add(club);
-    // console.log(this.leftArm.getWorldPosition());
-    // console.log(this.leftArm.getWorldDirection());
+  golfPosture(club) {
+    this.club = club;
+    this.leftArmAndClub.add(this.club);
+    this.club.position.set(.11, -ARM_HEIGHT, 0);
 
     this.leftArmTheta = Math.acos(WAIST_WIDTH / 2 / ARM_HEIGHT);
     this.rightArmTheta = this.leftArmTheta;
@@ -124,9 +132,10 @@ export default class Player extends Group {
 
     this.upperBodyGroup.rotation.x = -UPPER_BODY_THETA;
     this.upperBodyGroup.rotation.y = 0.0
-    this.leftArm.rotation.x = UPPER_BODY_THETA;
+    this.leftArmAndClub.rotation.x = UPPER_BODY_THETA;
     this.rightArm.rotation.x = UPPER_BODY_THETA;
-    this.leftArm.rotation.z = 1.5708 - this.leftArmTheta;
+    this.leftArmAndClub.rotation.z = 1.5708 - this.leftArmTheta;
+    this.club.rotation.z = -1.5708 + this.leftArmTheta;
     this.rightArm.rotation.z = -1.5708 + this.rightArmTheta;
     this.leftArm.scale.set(1, 1, 1);
     this.rightArm.scale.set(1, 1, 1);
@@ -134,12 +143,13 @@ export default class Player extends Group {
   }
 
   updateGolfSwing() {
-    this.leftArm.rotation.z = 1.5708 - this.leftArmTheta;
+    this.leftArmAndClub.rotation.z = 1.5708 - this.leftArmTheta;
     this.rightArm.rotation.z = -1.5708 + this.rightArmTheta;
     if (this.secondHalfSwing) {
       const leftArmLength = ARM_HEIGHT * Math.sin(this.rightArmTheta) / Math.sin(this.leftArmTheta);
       const leftArmScale = leftArmLength / ARM_HEIGHT;
       this.leftArm.scale.set(1, leftArmScale, 1);
+      this.club.position.set(0, -ARM_HEIGHT * leftArmScale, 0);
     } else {
       const rightArmLength = ARM_HEIGHT * Math.sin(this.leftArmTheta) / Math.sin(this.rightArmTheta);
       const rightArmScale = rightArmLength / ARM_HEIGHT;
@@ -170,25 +180,25 @@ export default class Player extends Group {
       const rotationX = 1 * (ellapsed / 250);
       this.leftLeg.rotation.x = rotationX;
       this.rightLeg.rotation.x = -rotationX;
-      this.leftArm.rotation.x = -rotationX;
+      this.leftArmAndClub.rotation.x = -rotationX;
       this.rightArm.rotation.x = rotationX
     } else if (currentTime - this.startClock < 500) {
       const rotationX = 1 * (1 - (ellapsed - 250) / 250);
       this.leftLeg.rotation.x = rotationX;
       this.rightLeg.rotation.x = -rotationX;
-      this.leftArm.rotation.x = -rotationX;
+      this.leftArmAndClub.rotation.x = -rotationX;
       this.rightArm.rotation.x = rotationX
     } else if (currentTime - this.startClock < 750) {
       const rotationX = 1 * (ellapsed - 500) / 250;
       this.leftLeg.rotation.x = -rotationX;
       this.rightLeg.rotation.x = rotationX;
-      this.leftArm.rotation.x = rotationX;
+      this.leftArmAndClub.rotation.x = rotationX;
       this.rightArm.rotation.x = -rotationX
     } else if (currentTime - this.startClock < 1000) {
       const rotationX = 1 * (1 - (ellapsed - 750) / 250);
       this.leftLeg.rotation.x = -rotationX;
       this.rightLeg.rotation.x = rotationX;
-      this.leftArm.rotation.x = rotationX;
+      this.leftArmAndClub.rotation.x = rotationX;
       this.rightArm.rotation.x = -rotationX
     } else {
       this.startClock = currentTime;
@@ -213,22 +223,28 @@ export default class Player extends Group {
       this.upperBodyGroup.rotation.y -= upperBodyRotationY;
       this.head.rotation.y += upperBodyRotationY;
 
-      this.leftArm.rotation.x += 0.001 * delta;
+      this.leftArmAndClub.rotation.x += 0.001 * delta;
       this.rightArm.rotation.x += 0.001 * delta;
 
       this.leftArmTheta -= 0.001 * delta;
       this.rightArmTheta += 0.001 * delta;
+
+      this.club.rotation.z += 0.002 * delta;
+
       this.updateGolfSwing();
     } else if (currentTime - this.startClock < 1250) {
       const upperBodyRotationY = 0.0064 * delta;
       this.upperBodyGroup.rotation.y += upperBodyRotationY;
       this.head.rotation.y -= upperBodyRotationY;
 
-      this.leftArm.rotation.x -= 0.004 * delta;
+      this.leftArmAndClub.rotation.x -= 0.004 * delta;
       this.rightArm.rotation.x -= 0.004 * delta;
 
       this.leftArmTheta += 0.004 * delta;
       this.rightArmTheta -= 0.004 * delta;
+
+      this.club.rotation.z -= 0.008 * delta;
+
       this.updateGolfSwing();
     } else if (currentTime - this.startClock < 1500) {
       this.secondHalfSwing = true;
@@ -236,11 +252,14 @@ export default class Player extends Group {
       const upperBodyRotationY = 0.0064 * delta;
       this.upperBodyGroup.rotation.y += upperBodyRotationY;
 
-      this.leftArm.rotation.x += 0.004 * delta;
+      this.leftArmAndClub.rotation.x += 0.004 * delta;
       this.rightArm.rotation.x += 0.004 * delta;
 
       this.leftArmTheta += 0.004 * delta;
       this.rightArmTheta -= 0.004 * delta;
+
+      this.club.rotation.z -= 0.008 * delta;
+
       this.updateGolfSwing();
     } else {
       this.swinging = false;

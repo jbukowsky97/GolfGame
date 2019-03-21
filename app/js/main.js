@@ -11,13 +11,14 @@ export default class App {
     this.scene.background = new THREE.Color( 0xe2fdff );
     this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
     this.camera.position.z = 5;
+    this.camera.position.y = 2;
 
     this.driver = new Driver();
 
     this.player = new Player();
     // this.player.neutralPosture();
     // this.player.startWalking();
-    this.player.golfPosture();
+    this.player.golfPosture(this.driver);
     this.player.swinging = true;
 
     this.scene.add(this.player);
@@ -38,11 +39,11 @@ export default class App {
     // this.resizeHandler();
     requestAnimationFrame(() => this.render());
 
-    this.player.rotation.y = 4.5;
+    this.player.rotation.y = 3;
   }
 
   render() {
-    this.player.rotation.y -= 0.01;
+    // this.player.rotation.y -= 0.01;
     
     this.player.animate();
 
