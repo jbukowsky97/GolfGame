@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import Player from './player';
+import Player from './models/player';
+import Driver from './models/driver';
 
 export default class App {
   constructor() {
@@ -11,13 +12,16 @@ export default class App {
     this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
     this.camera.position.z = 5;
 
-    this.player = new Player();
-    this.player.neutralPosture();
-    this.player.startWalking();
-    // this.player.golfPosture();
-    // this.player.swinging = true;
+    this.driver = new Driver();
 
-    this.scene.add( this.player );
+    this.player = new Player();
+    // this.player.neutralPosture();
+    // this.player.startWalking();
+    this.player.golfPosture();
+    this.player.swinging = true;
+
+    this.scene.add(this.player);
+    // this.scene.add(this.driver);
 
     this.ambientLight = new THREE.AmbientLight( 0x404040 );
     this.scene.add( this.ambientLight );
@@ -33,11 +37,13 @@ export default class App {
 
     // this.resizeHandler();
     requestAnimationFrame(() => this.render());
+
+    this.player.rotation.y = 4.5;
   }
 
   render() {
-    this.player.rotation.y -= 0.02;
-    // this.player.rotation.y = 1.5;
+    this.player.rotation.y -= 0.01;
+    
     this.player.animate();
 
     this.renderer.render( this.scene, this.camera );

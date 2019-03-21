@@ -1,4 +1,5 @@
-import { MeshPhongMaterial, Mesh, Group, CylinderBufferGeometry, BoxBufferGeometry, SphereBufferGeometry} from 'three';
+import { MeshPhongMaterial, Mesh, Group, CylinderBufferGeometry, BoxBufferGeometry, SphereBufferGeometry, Vector3} from 'three';
+import Driver from './driver';
 
 const LEG_HEIGHT = 1.1;
 const LEG_WIDTH = .2;
@@ -18,10 +19,7 @@ const RIGHT_ARM_POSITION_X = WAIST_WIDTH / 2 + ARM_WIDTH / 2;
 const ARM_POSITION_Y = ARM_HEIGHT;
 const HEAD_POSITION_Y = CHEST_HEIGHT;
 
-const UPPER_BODY_THETA = 0.5;
-const CHEST_SHIFT_Z = -CHEST_HEIGHT / 4 * Math.cos(UPPER_BODY_THETA);
-const CHEST_SHIFT_Y = -CHEST_HEIGHT / 4 * Math.sin(UPPER_BODY_THETA);
-const ARM_SHIFT_Z = CHEST_SHIFT_Z;
+const UPPER_BODY_THETA = 0.6;
 
 export default class Player extends Group {
   constructor() {
@@ -63,12 +61,25 @@ export default class Player extends Group {
     this.head = new Mesh(headGeometry, headMaterial);
     this.head.position.set(0, HEAD_POSITION_Y, 0);
 
+    this.leftArmAndClub = new Group();
+
+    this.club = new Driver();
+    const fuck = new Vector3();
+    this.leftArm.getWorldPosition(fuck)
+    console.log(fuck);
+    this.club.position.set(fuck.x, fuck.y, fuck.z);
+    // this.club.position.set(0, ARM_POSITION_Y - ARM_HEIGHT + 0.4, -0.4);
+    this.club.rotation.x = UPPER_BODY_THETA;
+
+    this.leftArmAndClub.add(this.leftArm);
+    this.leftArmAndClub.add(this.club);
 
     this.upperBodyGroup = new Group();
     this.upperBodyGroup.add(this.chest);
-    this.upperBodyGroup.add(this.leftArm);
+    this.upperBodyGroup.add(this.leftArmAndClub);
     this.upperBodyGroup.add(this.rightArm);
     this.upperBodyGroup.add(this.head);
+    // this.upperBodyGroup.add(this.club);
     this.upperBodyGroup.position.set(0, UPPER_BODY_POSITION_Y, 0);
 
     this.add(this.leftLeg);
@@ -100,6 +111,13 @@ export default class Player extends Group {
   }
 
   golfPosture() {
+    // club.position.set(0, 0.4, -CHEST_HEIGHT * Math.cos(UPPER_BODY_THETA) + 0.5);
+    // club.rotation.y = 1.5708;
+    // club.rotation.z += UPPER_BODY_THETA;
+    // this.upperBodyGroup.add(club);
+    // console.log(this.leftArm.getWorldPosition());
+    // console.log(this.leftArm.getWorldDirection());
+
     this.leftArmTheta = Math.acos(WAIST_WIDTH / 2 / ARM_HEIGHT);
     this.rightArmTheta = this.leftArmTheta;
     this.armOriginalY = ARM_HEIGHT / 2 * Math.sin(this.leftArmTheta);
