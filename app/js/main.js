@@ -1,6 +1,11 @@
 import * as THREE from 'three';
 import Player from './models/player';
 import Driver from './models/driver';
+import HoleOne from './models/hole_one';
+import { Vector3 } from 'three';
+
+const PLAYER_SPEED = 0.04;
+const PLAYER_ROTATION_SPEED = 0.0025;
 
 export default class App {
   constructor() {
@@ -10,19 +15,21 @@ export default class App {
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color( 0xe2fdff );
     this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
-    this.camera.position.z = 5;
-    this.camera.position.y = 2;
+    this.camera.position.z = 8;
+    this.camera.position.y = 4;
 
     this.driver = new Driver();
 
-    this.player = new Player();
-    // this.player.neutralPosture();
+    this.player = new Player(this.camera);
+    this.player.neutralPosture();
     // this.player.startWalking();
-    this.player.golfPosture(this.driver);
-    this.player.swinging = true;
+    // this.player.golfPosture(this.driver);
+    // this.player.swinging = true;
+
+    this.holeOne = new HoleOne;
 
     this.scene.add(this.player);
-    // this.scene.add(this.driver);
+    this.scene.add(this.holeOne);
 
     this.ambientLight = new THREE.AmbientLight( 0x404040 );
     this.scene.add( this.ambientLight );
@@ -30,20 +37,59 @@ export default class App {
     this.hemisphereLight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
     this.scene.add( this.hemisphereLight );
 
-    // const lightOne = new THREE.DirectionalLight (0xFFFFFF, 1.0);
-    // lightOne.position.set (10, 40, 100);
-    // this.scene.add (lightOne); 
+    this.keys = new Array();
+
+    const _self = this;
+    document.addEventListener("keydown", onKeyDown, false);
+    function onKeyDown(event) {
+      const keyCode = event.which;
+      if (!_self.keys.includes(keyCode)) {
+        _self.keys.push(keyCode);
+      }
+    };
+    document.addEventListener("keyup", onKeyUp, false);
+    function onKeyUp(event) {
+      const keyCode = event.which;
+      _self.keys = _self.keys.filter(kc => kc != keyCode);
+    }
 
     // window.addEventListener('resize', () => this.resizeHandler());
 
     // this.resizeHandler();
     requestAnimationFrame(() => this.render());
 
-    this.player.rotation.y = 3;
+    // this.player.rotation.y = 3;
+    this.prevTime = new Date().getTime();
   }
 
   render() {
+    const currentTime = new Date().getTime();
+    const delta = currentTime - this.prevTime;
+    this.prevTime = currentTime;
     // this.player.rotation.y -= 0.01;
+    if (this.keys.includes(87)) {
+      if (!this.player.walking) {
+        this.player.startWalking();
+      }
+      const worldDirection = new Vector3();
+      this.player.getWorldDirection(worldDirection);
+      const signX = worldDirection.x < 0 ? -1 : 1;
+      const signZ = worldDirection.z < 0 ? -1 : 1;
+      worldDirection.x = Math.abs(worldDirection.x);
+      worldDirection.z = Math.abs(worldDirection.z);
+      const dx = signX * PLAYER_SPEED * worldDirection.x / (worldDirection.x + worldDirection.z) * delta;
+      const dz = signZ * PLAYER_SPEED * worldDirection.z / (worldDirection.x + worldDirection.z) * delta;
+      this.player.position.x -= dx;
+      this.player.position.z -= dz;
+    } else {
+      this.player.stopWalking();
+    }
+    if (this.keys.includes(65)) {
+      this.player.rotation.y += PLAYER_ROTATION_SPEED * delta;
+    }
+    if (this.keys.includes(68)) {
+      this.player.rotation.y -= PLAYER_ROTATION_SPEED * delta;
+    }
     
     this.player.animate();
 

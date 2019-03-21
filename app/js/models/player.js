@@ -26,8 +26,10 @@ const ARM_THETA = Math.acos(WAIST_WIDTH / 2 / ARM_HEIGHT);
 const CLUB_THETA = -1.5708 + ARM_THETA;
 
 export default class Player extends Group {
-  constructor() {
+  constructor(camera) {
     super();
+
+    this.add(camera);
 
     const legGeometry = new BoxBufferGeometry(LEG_WIDTH, LEG_HEIGHT, LEG_WIDTH);
     legGeometry.translate(0, -LEG_HEIGHT / 2, 0);
@@ -121,6 +123,11 @@ export default class Player extends Group {
     this.leftArmAndClub.scale.set(1, 1, 1);
     this.rightArm.scale.set(1, 1, 1);
     this.head.rotation.y = 0.0;
+
+    this.leftLeg.rotation.x = 0.0;
+    this.rightLeg.rotation.x = 0.0;
+    this.leftArmAndClub.rotation.x = 0.0;
+    this.rightArm.rotation.x = 0.0
   }
 
   golfPosture(club) {
@@ -142,6 +149,11 @@ export default class Player extends Group {
     this.leftArm.scale.set(1, 1, 1);
     this.rightArm.scale.set(1, 1, 1);
     this.head.rotation.y = 0.0;
+
+    this.leftLeg.rotation.x = 0.0;
+    this.rightLeg.rotation.x = 0.0;
+    this.leftArmAndClub.rotation.x = 0.0;
+    this.rightArm.rotation.x = 0.0
   }
 
   updateGolfSwing() {
@@ -213,6 +225,7 @@ export default class Player extends Group {
 
   stopWalking() {
     this.walking = false;
+    this.neutralPosture();
   }
 
   swing() {
