@@ -12,7 +12,8 @@ const DRIVER_WIDTH = .33;
 const DRIVER_HEIGHT_MIDDLE = .2
 const DRIVER_THICKNESS = .1;
 
-const HEAD_ROTATION = 0.5;
+const HEAD_ROTATION_Z = 0.5;
+const HEAD_ROTATION_X = 0.15;
 
 export default class Driver extends Club {
   constructor() {
@@ -48,14 +49,15 @@ export default class Driver extends Club {
     const headMaterial = new MeshPhongMaterial( { color: 0xe8e8e8 } );
     this.head = new Mesh(headGeometry, headMaterial) ;
     this.head.position.set(-SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2, -DRIVER_THICKNESS / 2);
-    this.head.rotation.z = -HEAD_ROTATION;
+    this.head.rotation.z = -HEAD_ROTATION_Z;
+    this.head.rotation.x = HEAD_ROTATION_X;
 
     this.driverGroup = new Group();
     this.driverGroup.add(this.grip);
     this.driverGroup.add(this.shaft);
     this.driverGroup.add(this.head);
 
-    this.driverGroup.rotation.z = HEAD_ROTATION;
+    this.driverGroup.rotation.z = HEAD_ROTATION_Z;
     this.driverGroup.rotation.y = 1.5708;
 
     this.add(this.driverGroup);

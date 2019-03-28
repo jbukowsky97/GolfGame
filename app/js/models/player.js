@@ -104,6 +104,7 @@ export default class Player extends Group {
     this.armOriginalY = ARM_HEIGHT / 2 * Math.sin(ARM_THETA);
 
     this.walking = false;
+    this.forwards = true;
 
     this.setClock = true;
   }
@@ -120,9 +121,9 @@ export default class Player extends Group {
     this.rightArm.rotation.x = 0.0;
     this.leftArmAndClub.rotation.z = 0.0;
     this.rightArm.rotation.z = 0.0;
-    this.leftArmAndClub.scale.set(1, 1, 1);
+    this.leftArm.scale.set(1, 1, 1);
     this.rightArm.scale.set(1, 1, 1);
-    this.head.rotation.y = 0.0;
+    this.headGroup.rotation.y = 0.0;
 
     this.leftLeg.rotation.x = 0.0;
     this.rightLeg.rotation.x = 0.0;
@@ -148,12 +149,10 @@ export default class Player extends Group {
     this.rightArm.rotation.z = -1.5708 + this.rightArmTheta;
     this.leftArm.scale.set(1, 1, 1);
     this.rightArm.scale.set(1, 1, 1);
-    this.head.rotation.y = 0.0;
+    this.headGroup.rotation.y = 0.0;
 
     this.leftLeg.rotation.x = 0.0;
     this.rightLeg.rotation.x = 0.0;
-    this.leftArmAndClub.rotation.x = 0.0;
-    this.rightArm.rotation.x = 0.0
   }
 
   updateGolfSwing() {
@@ -188,27 +187,29 @@ export default class Player extends Group {
     const currentTime = new Date().getTime();
     this.prevClock = currentTime;
     const ellapsed = currentTime - this.startClock;
+    
+    const dir = this.forwards ? 1 : -1;
 
     if (ellapsed < 250) {
-      const rotationX = 1 * (ellapsed / 250);
+      const rotationX = dir * (ellapsed / 250);
       this.leftLeg.rotation.x = rotationX;
       this.rightLeg.rotation.x = -rotationX;
       this.leftArmAndClub.rotation.x = -rotationX;
       this.rightArm.rotation.x = rotationX
     } else if (currentTime - this.startClock < 500) {
-      const rotationX = 1 * (1 - (ellapsed - 250) / 250);
+      const rotationX = dir * (1 - (ellapsed - 250) / 250);
       this.leftLeg.rotation.x = rotationX;
       this.rightLeg.rotation.x = -rotationX;
       this.leftArmAndClub.rotation.x = -rotationX;
       this.rightArm.rotation.x = rotationX
     } else if (currentTime - this.startClock < 750) {
-      const rotationX = 1 * (ellapsed - 500) / 250;
+      const rotationX = dir * (ellapsed - 500) / 250;
       this.leftLeg.rotation.x = -rotationX;
       this.rightLeg.rotation.x = rotationX;
       this.leftArmAndClub.rotation.x = rotationX;
       this.rightArm.rotation.x = -rotationX
     } else if (currentTime - this.startClock < 1000) {
-      const rotationX = 1 * (1 - (ellapsed - 750) / 250);
+      const rotationX = dir * (1 - (ellapsed - 750) / 250);
       this.leftLeg.rotation.x = -rotationX;
       this.rightLeg.rotation.x = rotationX;
       this.leftArmAndClub.rotation.x = rotationX;
@@ -218,9 +219,11 @@ export default class Player extends Group {
     }
   }
 
-  startWalking() {
+  startWalking(forwards) {
+    this.neutralPosture();
     this.walking = true;
     this.setClock = true;
+    this.forwards = forwards;
   }
 
   stopWalking() {

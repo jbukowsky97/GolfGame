@@ -3,9 +3,15 @@ import Player from './models/player';
 import Driver from './models/driver';
 import HoleOne from './models/hole_one';
 import { Vector3 } from 'three';
+import GolfBall from './models/golfball';
+import Tee from './models/tee';
 
 const PLAYER_SPEED = 0.04;
 const PLAYER_ROTATION_SPEED = 0.0025;
+const GAME_STATE = [
+  'PLACE_BALL',
+  'HIT_BALL'
+];
 
 export default class App {
   constructor() {
@@ -18,7 +24,11 @@ export default class App {
     this.camera.position.z = 8;
     this.camera.position.y = 4;
 
+    this.state = 0;
+
     this.driver = new Driver();
+    this.ball = new GolfBall();
+    this.tee = new Tee();
 
     this.player = new Player(this.camera);
     this.player.neutralPosture();
@@ -30,6 +40,10 @@ export default class App {
 
     this.scene.add(this.player);
     this.scene.add(this.holeOne);
+    // this.scene.add(this.ball);
+    // this.scene.add(this.tee);
+
+    // this.ball.position.y = this.tee.getTeeHeight();
 
     this.ambientLight = new THREE.AmbientLight( 0x404040 );
     this.scene.add( this.ambientLight );
@@ -38,6 +52,7 @@ export default class App {
     this.scene.add( this.hemisphereLight );
 
     this.keys = new Array();
+    this.actionUp = true;
 
     const _self = this;
     document.addEventListener("keydown", onKeyDown, false);
@@ -50,6 +65,9 @@ export default class App {
     document.addEventListener("keyup", onKeyUp, false);
     function onKeyUp(event) {
       const keyCode = event.which;
+      if (keyCode === 69) {
+        _self.actionUp = true;
+      }
       _self.keys = _self.keys.filter(kc => kc != keyCode);
     }
 
@@ -67,9 +85,9 @@ export default class App {
     const delta = currentTime - this.prevTime;
     this.prevTime = currentTime;
     // this.player.rotation.y -= 0.01;
-    if (this.keys.includes(87)) {
+    if (this.keys.includes(87) && !this.keys.includes(83)) {
       if (!this.player.walking) {
-        this.player.startWalking();
+        this.player.startWalking(true);
       }
       const worldDirection = new Vector3();
       this.player.getWorldDirection(worldDirection);
@@ -81,14 +99,45 @@ export default class App {
       const dz = signZ * PLAYER_SPEED * worldDirection.z / (worldDirection.x + worldDirection.z) * delta;
       this.player.position.x -= dx;
       this.player.position.z -= dz;
+    } else if (this.keys.includes(83) && !this.keys.includes(87)) {
+      if (!this.player.walking) {
+        this.player.startWalking(false);
+      }
+      const worldDirection = new Vector3();
+      this.player.getWorldDirection(worldDirection);
+      const signX = worldDirection.x < 0 ? -1 : 1;
+      const signZ = worldDirection.z < 0 ? -1 : 1;
+      worldDirection.x = Math.abs(worldDirection.x);
+      worldDirection.z = Math.abs(worldDirection.z);
+      const dx = signX * PLAYER_SPEED * worldDirection.x / (worldDirection.x + worldDirection.z) * delta;
+      const dz = signZ * PLAYER_SPEED * worldDirection.z / (worldDirection.x + worldDirection.z) * delta;
+      this.player.position.x += dx;
+      this.player.position.z += dz;
     } else {
-      this.player.stopWalking();
+      if (this.player.walking) {
+        this.player.stopWalking();
+      }
     }
     if (this.keys.includes(65)) {
       this.player.rotation.y += PLAYER_ROTATION_SPEED * delta;
     }
     if (this.keys.includes(68)) {
       this.player.rotation.y -= PLAYER_ROTATION_SPEED * delta;
+    }
+    if (this.keys.includes(69) && this.actionUp) {
+      console.log('fudge');
+      this.actionUp = false;
+      if (GAME_STATE[this.state] === 'PLACE_BALL') {
+        const playerCoords = new Vector3();
+        this.player.getWorldPosition(playerCoords);
+        if (this.holeOne.insideTeeBox(playerCoords)) {
+          this.state++;
+          this.tee.position.set(playerCoords.x, 0, playerCoords.z);
+          this.ball.position.set(playerCoords.x, this.tee.getTeeHeight(), playerCoords.z);
+          this.scene.add(this.tee);
+          this.scene.add(this.ball);
+        }
+      }
     }
     
     this.player.animate();
