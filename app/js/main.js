@@ -125,7 +125,6 @@ export default class App {
       this.player.rotation.y -= PLAYER_ROTATION_SPEED * delta;
     }
     if (this.keys.includes(69) && this.actionUp) {
-      console.log('fudge');
       this.actionUp = false;
       if (GAME_STATE[this.state] === 'PLACE_BALL') {
         const playerCoords = new Vector3();
