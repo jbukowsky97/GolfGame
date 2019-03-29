@@ -29,7 +29,8 @@ export default class Player extends Group {
   constructor(camera) {
     super();
 
-    this.add(camera);
+    this.camera = camera;
+    this.add(this.camera);
 
     const legGeometry = new BoxBufferGeometry(LEG_WIDTH, LEG_HEIGHT, LEG_WIDTH);
     legGeometry.translate(0, -LEG_HEIGHT / 2, 0);
@@ -92,10 +93,14 @@ export default class Player extends Group {
     this.upperBodyGroup.add(this.headGroup);
     this.upperBodyGroup.position.set(0, UPPER_BODY_POSITION_Y, 0);
 
-    this.add(this.leftLeg);
-    this.add(this.rightLeg);
-    this.add(this.waist);
-    this.add(this.upperBodyGroup);
+    this.pivotGroup = new Group();
+
+    this.pivotGroup.add(this.leftLeg);
+    this.pivotGroup.add(this.rightLeg);
+    this.pivotGroup.add(this.waist);
+    this.pivotGroup.add(this.upperBodyGroup);
+
+    this.add(this.pivotGroup);
 
     this.swinging = false;
     this.secondHalfSwing = false;
@@ -106,13 +111,23 @@ export default class Player extends Group {
     this.walking = false;
     this.forwards = true;
 
+    this.inGolfPosture = false;
+    this.finishedSwing = true;
+
     this.setClock = true;
   }
 
   neutralPosture() {
+    if (this.inGolfPosture) {
+      this.inGolfPosture = false;
+      this.rotation.y += Math.PI / 2;
+    }
+
+    this.camera.position.set(0, 4, 8);
+    this.camera.rotation.y = 0.0;
+
     if (this.club) {
       this.leftArmAndClub.remove(this.club);
-      this.club = null;
     }
 
     this.upperBodyGroup.rotation.x = 0.0;
@@ -131,8 +146,25 @@ export default class Player extends Group {
     this.rightArm.rotation.x = 0.0
   }
 
-  golfPosture(club) {
+  updateClub(club) {
+    const oldClub = this.club;
     this.club = club;
+    if (this.inGolfPosture) {
+      this.leftArmAndClub.remove(oldClub);
+      this.leftArmAndClub.add(this.club);
+      this.club.position.set(.11, -ARM_HEIGHT, 0);
+    }
+  }
+
+  golfPosture() {
+    this.inGolfPosture = true;
+    this.finishedSwing = false;
+
+    this.camera.position.set(8, 4, 0);
+    this.camera.rotation.y = Math.PI / 2;
+
+    this.pivotGroup.position.set(.2, 0, 1.3);
+
     this.leftArmAndClub.add(this.club);
     this.club.position.set(.11, -ARM_HEIGHT, 0);
 
@@ -231,6 +263,14 @@ export default class Player extends Group {
     this.neutralPosture();
   }
 
+  startSwing(ball, ballDx, ballDz) {
+    this.swinging = true;
+    this.setClock = true;
+    this.ball = ball;
+    this.ballDx = ballDx;
+    this.ballDz = ballDz;
+  }
+
   swing() {
     const currentTime = new Date().getTime();
     this.prevClock = currentTime;
@@ -265,6 +305,11 @@ export default class Player extends Group {
 
       this.updateGolfSwing();
     } else if (currentTime - this.startClock < 1400) {
+      if (this.ball) {
+        this.ball.setSpeed(this.club.getSpeed() * this.ballDx, this.club.getHeight(), this.club.getSpeed() * this.ballDz);
+        this.ball = null;
+      }
+
       this.secondHalfSwing = true;
 
       const upperBodyRotationY = 1.5708 * (ellapsed - 1200) / 200;
@@ -283,6 +328,7 @@ export default class Player extends Group {
       this.swinging = false;
       this.secondHalfSwing = false;
       this.setClock = true;
+      this.finishedSwing = true;
     }
   }
 }

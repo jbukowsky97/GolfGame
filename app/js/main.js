@@ -1,16 +1,18 @@
 import * as THREE from 'three';
 import Player from './models/player';
 import Driver from './models/driver';
+import Wedge from './models/wedge';
 import HoleOne from './models/hole_one';
 import { Vector3 } from 'three';
 import GolfBall from './models/golfball';
 import Tee from './models/tee';
 
 const PLAYER_SPEED = 0.04;
-const PLAYER_ROTATION_SPEED = 0.0025;
+const PLAYER_ROTATION_SPEED = 0.0015;
 const GAME_STATE = [
   'PLACE_BALL',
-  'HIT_BALL'
+  'LIVE_BALL',
+  'READY',
 ];
 
 export default class App {
@@ -27,11 +29,13 @@ export default class App {
     this.state = 0;
 
     this.driver = new Driver();
+    this.wedge = new Wedge();
     this.ball = new GolfBall();
     this.tee = new Tee();
 
     this.player = new Player(this.camera);
     this.player.neutralPosture();
+    this.player.updateClub(this.driver);
     // this.player.startWalking();
     // this.player.golfPosture(this.driver);
     // this.player.swinging = true;
@@ -58,7 +62,11 @@ export default class App {
     document.addEventListener("keydown", onKeyDown, false);
     function onKeyDown(event) {
       const keyCode = event.which;
-      if (!_self.keys.includes(keyCode)) {
+      if (keyCode === 49) {
+        _self.player.updateClub(_self.driver);
+      } else if (keyCode === 50) {
+        _self.player.updateClub(_self.wedge);
+      } else if (!_self.keys.includes(keyCode)) {
         _self.keys.push(keyCode);
       }
     };
@@ -84,8 +92,8 @@ export default class App {
     const currentTime = new Date().getTime();
     const delta = currentTime - this.prevTime;
     this.prevTime = currentTime;
-    // this.player.rotation.y -= 0.01;
-    if (this.keys.includes(87) && !this.keys.includes(83)) {
+
+    if (this.keys.includes(87) && !this.keys.includes(83) && this.player.finishedSwing) {
       if (!this.player.walking) {
         this.player.startWalking(true);
       }
@@ -99,7 +107,7 @@ export default class App {
       const dz = signZ * PLAYER_SPEED * worldDirection.z / (worldDirection.x + worldDirection.z) * delta;
       this.player.position.x -= dx;
       this.player.position.z -= dz;
-    } else if (this.keys.includes(83) && !this.keys.includes(87)) {
+    } else if (this.keys.includes(83) && !this.keys.includes(87) && this.player.finishedSwing) {
       if (!this.player.walking) {
         this.player.startWalking(false);
       }
@@ -132,14 +140,39 @@ export default class App {
         if (this.holeOne.insideTeeBox(playerCoords)) {
           this.state++;
           this.tee.position.set(playerCoords.x, 0, playerCoords.z);
+          this.ball.teed = true;
           this.ball.position.set(playerCoords.x, this.tee.getTeeHeight(), playerCoords.z);
           this.scene.add(this.tee);
           this.scene.add(this.ball);
         }
+      } else if (GAME_STATE[this.state] === 'LIVE_BALL') {
+        const playerCoords = new Vector3();
+        this.player.getWorldPosition(playerCoords);
+        if (this.ball.withinRange(playerCoords)) {
+          this.state++;
+          this.player.golfPosture();
+          this.player.rotation.y = this.holeOne.getTeeBoxDirection();
+          const ballCoords = new Vector3();
+          this.ball.getWorldPosition(ballCoords);
+          
+          this.player.position.set(ballCoords.x, 0, ballCoords.z);
+        }
+      } else if (GAME_STATE[this.state] === 'READY') {
+        this.state--;
+        const playerDirection = new Vector3();
+        this.player.getWorldDirection(playerDirection);
+        const signX = playerDirection.z < 0 ? -1 : 1;
+        const signZ = playerDirection.x < 0 ? -1 : 1;
+        playerDirection.x = Math.abs(playerDirection.x);
+        playerDirection.z = Math.abs(playerDirection.z);
+        const dx = -signX * playerDirection.z / (playerDirection.x + playerDirection.z);
+        const dz = signZ * playerDirection.x / (playerDirection.x + playerDirection.z);
+        this.player.startSwing(this.ball, dx, dz);
       }
     }
     
     this.player.animate();
+    this.ball.update();
 
     this.renderer.render( this.scene, this.camera );
 

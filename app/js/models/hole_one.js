@@ -7,6 +7,7 @@ const ROUGH_WIDTH = 30;
 const TEE_BOX_WIDTH = 20;
 const TEE_BOX_DEPTH = 30;
 
+const TEE_BOX_DIRECTION_Y = 3 * Math.PI / 2;
 
 export default class HoleOne extends Group {
   constructor() {
@@ -60,13 +61,14 @@ export default class HoleOne extends Group {
     // this.add(this.text);
   }
 
+  getTeeBoxDirection() {
+    return TEE_BOX_DIRECTION_Y;
+  }
+
   insideTeeBox(coords) {
     const teeboxCoords = new Vector3();
     this.teebox.getWorldPosition(teeboxCoords);
-    if (coords.x >= teeboxCoords.x - TEE_BOX_WIDTH / 2 && coords.x <= teeboxCoords.x + TEE_BOX_WIDTH / 2
-      && coords.z <= teeboxCoords.z && coords.z >= teeboxCoords.z - TEE_BOX_DEPTH) {
-      return true;
-    }
-    return false;
+    return (coords.x >= teeboxCoords.x - TEE_BOX_WIDTH / 2 && coords.x <= teeboxCoords.x + TEE_BOX_WIDTH / 2
+      && coords.z <= teeboxCoords.z && coords.z >= teeboxCoords.z - TEE_BOX_DEPTH);
   }
 }

@@ -9,17 +9,17 @@ const GRIP_HEIGHT = 0.4;
 const GRIP_RADIUS_TOP = 0.032;
 const GRIP_RADIUS_BOTTOM = 0.03;
 
-const DRIVER_WIDTH = .33;
-const DRIVER_HEIGHT_MIDDLE = .2
-const DRIVER_THICKNESS = .1;
+const WEDGE_WIDTH = .33;
+const WEDGE_HEIGHT_MIDDLE = .2
+const WEDGE_THICKNESS = .1;
 
 const HEAD_ROTATION_Z = 0.5;
 const HEAD_ROTATION_X = 0.15;
 
-const DRIVER_SPEED = 2;
-const DRIVER_HEIGHT = .7;
+const WEDGE_SPEED = .5;
+const WEDGE_HEIGHT = 1;
 
-export default class Driver extends Club {
+export default class Wedge extends Club {
   constructor() {
     super();
 
@@ -36,23 +36,23 @@ export default class Driver extends Club {
 
     var headShape = new Shape();
     headShape.moveTo(0, 0);
-    headShape.lineTo(DRIVER_WIDTH / 3, -DRIVER_HEIGHT_MIDDLE / 2);
-    headShape.lineTo(DRIVER_WIDTH * 2 / 3, -DRIVER_HEIGHT_MIDDLE / 2);
-    headShape.lineTo(DRIVER_WIDTH, 0);
-    headShape.lineTo(DRIVER_WIDTH * 2 / 3, DRIVER_HEIGHT_MIDDLE / 2);
-    headShape.lineTo(DRIVER_WIDTH / 3, DRIVER_HEIGHT_MIDDLE / 2);
+    headShape.lineTo(WEDGE_WIDTH / 3, -WEDGE_HEIGHT_MIDDLE / 2);
+    headShape.lineTo(WEDGE_WIDTH * 2 / 3, -WEDGE_HEIGHT_MIDDLE / 2);
+    headShape.lineTo(WEDGE_WIDTH, 0);
+    headShape.lineTo(WEDGE_WIDTH * 2 / 3, WEDGE_HEIGHT_MIDDLE / 2);
+    headShape.lineTo(WEDGE_WIDTH / 3, WEDGE_HEIGHT_MIDDLE / 2);
     headShape.lineTo(0, 0);
 
     var headSettings = {
       steps: 2,
-      depth: DRIVER_THICKNESS,
+      depth: WEDGE_THICKNESS,
       bevelEnabled: false
     };
 
     const headGeometry = new ExtrudeBufferGeometry( headShape, headSettings );
-    const headMaterial = new MeshPhongMaterial( { color: 0xe8e8e8 } );
+    const headMaterial = new MeshPhongMaterial( { color: 0xff0000 } ); //0xe8e8e8
     this.head = new Mesh(headGeometry, headMaterial) ;
-    this.head.position.set(-SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2, -DRIVER_THICKNESS / 2);
+    this.head.position.set(-SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2, -WEDGE_THICKNESS / 2);
     this.head.rotation.z = -HEAD_ROTATION_Z;
     this.head.rotation.x = HEAD_ROTATION_X;
 
@@ -68,10 +68,10 @@ export default class Driver extends Club {
   }
 
   getSpeed() {
-    return DRIVER_SPEED;
+    return WEDGE_SPEED;
   }
-  
+
   getHeight() {
-    return DRIVER_HEIGHT;
+    return WEDGE_HEIGHT;
   }
 }
