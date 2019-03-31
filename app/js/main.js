@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 import Player from './models/player';
 import Driver from './models/driver';
+import Iron from './models/iron';
 import Wedge from './models/wedge';
 import HoleOne from './models/hole_one';
 import { Vector3 } from 'three';
 import GolfBall from './models/golfball';
 import Tee from './models/tee';
+import Putter from './models/putter';
 
 const PLAYER_SPEED = 0.04;
 const PLAYER_ROTATION_SPEED = 0.0015;
@@ -29,7 +31,9 @@ export default class App {
     this.state = 0;
 
     this.driver = new Driver();
+    this.iron = new Iron();
     this.wedge = new Wedge();
+    this.putter = new Putter();
     this.ball = new GolfBall();
     this.tee = new Tee();
 
@@ -40,7 +44,7 @@ export default class App {
     // this.player.golfPosture(this.driver);
     // this.player.swinging = true;
 
-    this.holeOne = new HoleOne;
+    this.holeOne = new HoleOne();
 
     this.scene.add(this.player);
     this.scene.add(this.holeOne);
@@ -58,6 +62,8 @@ export default class App {
     this.keys = new Array();
     this.actionUp = true;
 
+    this.ballCoords = new Vector3();
+
     const _self = this;
     document.addEventListener("keydown", onKeyDown, false);
     function onKeyDown(event) {
@@ -65,7 +71,11 @@ export default class App {
       if (keyCode === 49) {
         _self.player.updateClub(_self.driver);
       } else if (keyCode === 50) {
+        _self.player.updateClub(_self.iron);
+      } else if (keyCode === 51) {
         _self.player.updateClub(_self.wedge);
+      } else if (keyCode === 52) {
+        _self.player.updateClub(_self.putter);
       } else if (!_self.keys.includes(keyCode)) {
         _self.keys.push(keyCode);
       }
@@ -92,6 +102,12 @@ export default class App {
     const currentTime = new Date().getTime();
     const delta = currentTime - this.prevTime;
     this.prevTime = currentTime;
+
+    
+    this.ball.getWorldPosition(this.ballCoords);
+    if (this.holeOne.insideHole(this.ballCoords, .13)) {
+      this.scene.remove(this.ball);
+    }
 
     if (this.keys.includes(87) && !this.keys.includes(83) && this.player.finishedSwing) {
       if (!this.player.walking) {
@@ -150,8 +166,9 @@ export default class App {
         this.player.getWorldPosition(playerCoords);
         if (this.ball.withinRange(playerCoords)) {
           this.state++;
+          const rotationY = this.player.rotation.y + 3 / 2 * Math.PI;
           this.player.golfPosture();
-          this.player.rotation.y = this.holeOne.getTeeBoxDirection();
+          this.player.rotation.y = rotationY
           const ballCoords = new Vector3();
           this.ball.getWorldPosition(ballCoords);
           
@@ -169,6 +186,9 @@ export default class App {
         const dz = signZ * playerDirection.x / (playerDirection.x + playerDirection.z);
         this.player.startSwing(this.ball, dx, dz);
       }
+    }
+    if (this.player.backswing && this.actionUp) {
+      this.player.startDownswing();
     }
     
     this.player.animate();

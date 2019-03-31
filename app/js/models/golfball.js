@@ -5,7 +5,7 @@ const BALL_RADIUS = .13;
 const RANGE = 5;
 
 const GRAVITY = .008;
-const FRICTION = .00001;
+const FRICTION = .98;
 
 export default class GolfBall extends Group {
   constructor() {
@@ -29,13 +29,22 @@ export default class GolfBall extends Group {
     this.position.x += this.speedX;
     this.position.y += this.speedY;
     this.position.z += this.speedZ;
+    if (this.position.y === 0) {
+      this.speedX *= FRICTION;
+      this.speedZ *= FRICTION;
+      const absX = Math.abs(this.speedX);
+      const absZ = Math.abs(this.speedZ);
+      if (this.position.y === 0 && (absX > 0 || absZ > 0) && absX < 0.1 && absZ < 0.1) {
+        this.speedX = 0.0;
+        this.speedZ = 0.0;
+      }
+    }
     if (this.position.y > 0 && !this.teed) {
       this.speedY = this.speedY - GRAVITY;
     } else if (this.position.y < 0) {
       this.position.y = 0;
       this.speedY = 0.0;
       this.speedX = 0.0;
-      this.speedY = 0.0;
       this.speedZ = 0.0;
     }
   }

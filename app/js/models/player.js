@@ -265,10 +265,15 @@ export default class Player extends Group {
 
   startSwing(ball, ballDx, ballDz) {
     this.swinging = true;
+    this.backswing = true;
     this.setClock = true;
     this.ball = ball;
     this.ballDx = ballDx;
     this.ballDz = ballDz;
+  }
+
+  startDownswing() {
+    this.backswing = false;
   }
 
   swing() {
@@ -276,59 +281,65 @@ export default class Player extends Group {
     this.prevClock = currentTime;
     const ellapsed = currentTime - this.startClock;
 
-    if (ellapsed < 1000) {
-      const upperBodyRotationY = -1.5708 * ellapsed / 1000;
-      this.upperBodyGroup.rotation.y = upperBodyRotationY;
-      this.headGroup.rotation.y = -upperBodyRotationY;
+    if (this.backswing) {
+      if (ellapsed < 1000) {
+        const upperBodyRotationY = -1.5708 * ellapsed / 1000;
+        this.upperBodyGroup.rotation.y = upperBodyRotationY;
+        this.headGroup.rotation.y = -upperBodyRotationY;
 
-      this.swingRotation = ellapsed / 1000;
+        this.swingRotation = ellapsed / 1000;
 
-      this.leftArmAndClub.rotation.x = UPPER_BODY_THETA + this.swingRotation;
-      this.rightArm.rotation.x = UPPER_BODY_THETA + this.swingRotation;
-      this.leftArmTheta = ARM_THETA - this.swingRotation;
-      this.rightArmTheta = ARM_THETA + this.swingRotation;
-      this.club.rotation.z = CLUB_THETA + 2 * this.swingRotation;
+        this.leftArmAndClub.rotation.x = UPPER_BODY_THETA + this.swingRotation;
+        this.rightArm.rotation.x = UPPER_BODY_THETA + this.swingRotation;
+        this.leftArmTheta = ARM_THETA - this.swingRotation;
+        this.rightArmTheta = ARM_THETA + this.swingRotation;
+        this.club.rotation.z = CLUB_THETA + 2 * this.swingRotation;
 
-      this.updateGolfSwing();
-    } else if (currentTime - this.startClock < 1200) {
-      const upperBodyRotationY = -1.5708 * (1 - (ellapsed - 1000) / 200);
-      this.upperBodyGroup.rotation.y = upperBodyRotationY;
-      this.headGroup.rotation.y = -upperBodyRotationY;
-
-      this.swingRotation = (1 - (ellapsed - 1000) / 200);
-
-      this.leftArmAndClub.rotation.x = UPPER_BODY_THETA + this.swingRotation;
-      this.rightArm.rotation.x = UPPER_BODY_THETA + this.swingRotation;
-      this.leftArmTheta = ARM_THETA - this.swingRotation;
-      this.rightArmTheta = ARM_THETA + this.swingRotation;
-      this.club.rotation.z = CLUB_THETA + 2 * this.swingRotation;
-
-      this.updateGolfSwing();
-    } else if (currentTime - this.startClock < 1400) {
-      if (this.ball) {
-        this.ball.setSpeed(this.club.getSpeed() * this.ballDx, this.club.getHeight(), this.club.getSpeed() * this.ballDz);
-        this.ball = null;
+        this.updateGolfSwing();
       }
-
-      this.secondHalfSwing = true;
-
-      const upperBodyRotationY = 1.5708 * (ellapsed - 1200) / 200;
-      this.upperBodyGroup.rotation.y = upperBodyRotationY;
-
-      this.swingRotation = (ellapsed - 1200) / 200;
-
-      this.leftArmAndClub.rotation.x = UPPER_BODY_THETA + this.swingRotation;
-      this.rightArm.rotation.x = UPPER_BODY_THETA + this.swingRotation;
-      this.leftArmTheta = ARM_THETA + this.swingRotation;
-      this.rightArmTheta = ARM_THETA - this.swingRotation;
-      this.club.rotation.z = CLUB_THETA - 2 * this.swingRotation;
-
-      this.updateGolfSwing();
+      this.backswingRatio = Math.min(ellapsed, 1000) / 1000;
+      this.backswingEllapsed = ellapsed;
     } else {
-      this.swinging = false;
-      this.secondHalfSwing = false;
-      this.setClock = true;
-      this.finishedSwing = true;
+      if (currentTime - this.startClock < this.backswingEllapsed + 200) {
+        const upperBodyRotationY = -1.5708 * this.backswingRatio * (1 - (ellapsed - this.backswingEllapsed) / 200);
+        this.upperBodyGroup.rotation.y = upperBodyRotationY;
+        this.headGroup.rotation.y = -upperBodyRotationY;
+
+        this.swingRotation = this.backswingRatio * (1 - (ellapsed - this.backswingEllapsed) / 200);
+
+        this.leftArmAndClub.rotation.x = UPPER_BODY_THETA + this.swingRotation;
+        this.rightArm.rotation.x = UPPER_BODY_THETA + this.swingRotation;
+        this.leftArmTheta = ARM_THETA - this.swingRotation;
+        this.rightArmTheta = ARM_THETA + this.swingRotation;
+        this.club.rotation.z = CLUB_THETA + 2 * this.swingRotation;
+
+        this.updateGolfSwing();
+      } else if (currentTime - this.startClock < this.backswingEllapsed + 400) {
+        if (this.ball) {
+          this.ball.setSpeed(this.backswingRatio * this.club.getSpeed() * this.ballDx, this.backswingRatio * this.club.getHeight(), this.backswingRatio * this.club.getSpeed() * this.ballDz);
+          this.ball = null;
+        }
+
+        this.secondHalfSwing = true;
+
+        const upperBodyRotationY = 1.5708 * (ellapsed - this.backswingEllapsed - 200) / 200;
+        this.upperBodyGroup.rotation.y = upperBodyRotationY;
+
+        this.swingRotation = (ellapsed - this.backswingEllapsed - 200) / 200;
+
+        this.leftArmAndClub.rotation.x = UPPER_BODY_THETA + this.swingRotation;
+        this.rightArm.rotation.x = UPPER_BODY_THETA + this.swingRotation;
+        this.leftArmTheta = ARM_THETA + this.swingRotation;
+        this.rightArmTheta = ARM_THETA - this.swingRotation;
+        this.club.rotation.z = CLUB_THETA - 2 * this.swingRotation;
+
+        this.updateGolfSwing();
+      } else {
+        this.swinging = false;
+        this.secondHalfSwing = false;
+        this.setClock = true;
+        this.finishedSwing = true;
+      }
     }
   }
 }
