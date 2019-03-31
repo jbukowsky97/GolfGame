@@ -10,7 +10,8 @@ import Tee from './models/tee';
 import Putter from './models/putter';
 
 const PLAYER_SPEED = 0.04;
-const PLAYER_ROTATION_SPEED = 0.0015;
+const PLAYER_ROTATION_SPEED = 0.002;
+const PLAYER_ROTATION_SPEED_SWING = 0.001;
 const GAME_STATE = [
   'PLACE_BALL',
   'LIVE_BALL',
@@ -113,28 +114,16 @@ export default class App {
       if (!this.player.walking) {
         this.player.startWalking(true);
       }
-      const worldDirection = new Vector3();
-      this.player.getWorldDirection(worldDirection);
-      const signX = worldDirection.x < 0 ? -1 : 1;
-      const signZ = worldDirection.z < 0 ? -1 : 1;
-      worldDirection.x = Math.abs(worldDirection.x);
-      worldDirection.z = Math.abs(worldDirection.z);
-      const dx = signX * PLAYER_SPEED * worldDirection.x / (worldDirection.x + worldDirection.z) * delta;
-      const dz = signZ * PLAYER_SPEED * worldDirection.z / (worldDirection.x + worldDirection.z) * delta;
+      const dx = delta * PLAYER_SPEED * Math.sin(this.player.rotation.y);
+      const dz = delta * PLAYER_SPEED * Math.cos(this.player.rotation.y);
       this.player.position.x -= dx;
       this.player.position.z -= dz;
     } else if (this.keys.includes(83) && !this.keys.includes(87) && this.player.finishedSwing) {
       if (!this.player.walking) {
         this.player.startWalking(false);
       }
-      const worldDirection = new Vector3();
-      this.player.getWorldDirection(worldDirection);
-      const signX = worldDirection.x < 0 ? -1 : 1;
-      const signZ = worldDirection.z < 0 ? -1 : 1;
-      worldDirection.x = Math.abs(worldDirection.x);
-      worldDirection.z = Math.abs(worldDirection.z);
-      const dx = signX * PLAYER_SPEED * worldDirection.x / (worldDirection.x + worldDirection.z) * delta;
-      const dz = signZ * PLAYER_SPEED * worldDirection.z / (worldDirection.x + worldDirection.z) * delta;
+      const dx = delta * PLAYER_SPEED * Math.sin(this.player.rotation.y);
+      const dz = delta * PLAYER_SPEED * Math.cos(this.player.rotation.y);
       this.player.position.x += dx;
       this.player.position.z += dz;
     } else {
@@ -143,10 +132,18 @@ export default class App {
       }
     }
     if (this.keys.includes(65)) {
-      this.player.rotation.y += PLAYER_ROTATION_SPEED * delta;
+      if (this.player.inGolfPosture) {
+        this.player.rotation.y += PLAYER_ROTATION_SPEED_SWING * delta;
+      } else {
+        this.player.rotation.y += PLAYER_ROTATION_SPEED * delta;
+      }
     }
     if (this.keys.includes(68)) {
-      this.player.rotation.y -= PLAYER_ROTATION_SPEED * delta;
+      if (this.player.inGolfPosture) {
+        this.player.rotation.y -= PLAYER_ROTATION_SPEED_SWING * delta;
+      } else {
+        this.player.rotation.y -= PLAYER_ROTATION_SPEED * delta;
+      }
     }
     if (this.keys.includes(69) && this.actionUp) {
       this.actionUp = false;
@@ -176,15 +173,7 @@ export default class App {
         }
       } else if (GAME_STATE[this.state] === 'READY') {
         this.state--;
-        const playerDirection = new Vector3();
-        this.player.getWorldDirection(playerDirection);
-        const signX = playerDirection.z < 0 ? -1 : 1;
-        const signZ = playerDirection.x < 0 ? -1 : 1;
-        playerDirection.x = Math.abs(playerDirection.x);
-        playerDirection.z = Math.abs(playerDirection.z);
-        const dx = -signX * playerDirection.z / (playerDirection.x + playerDirection.z);
-        const dz = signZ * playerDirection.x / (playerDirection.x + playerDirection.z);
-        this.player.startSwing(this.ball, dx, dz);
+        this.player.startSwing(this.ball, this.player.rotation.y);
       }
     }
     if (this.player.backswing && this.actionUp) {

@@ -263,13 +263,12 @@ export default class Player extends Group {
     this.neutralPosture();
   }
 
-  startSwing(ball, ballDx, ballDz) {
+  startSwing(ball, angle) {
     this.swinging = true;
     this.backswing = true;
     this.setClock = true;
     this.ball = ball;
-    this.ballDx = ballDx;
-    this.ballDz = ballDz;
+    this.angle = angle;
   }
 
   startDownswing() {
@@ -316,7 +315,9 @@ export default class Player extends Group {
         this.updateGolfSwing();
       } else if (currentTime - this.startClock < this.backswingEllapsed + 400) {
         if (this.ball) {
-          this.ball.setSpeed(this.backswingRatio * this.club.getSpeed() * this.ballDx, this.backswingRatio * this.club.getHeight(), this.backswingRatio * this.club.getSpeed() * this.ballDz);
+          const ballSpeedX = this.backswingRatio * this.club.getSpeed() * -Math.cos(this.angle);
+          const ballSpeedZ = this.backswingRatio * this.club.getSpeed() * Math.sin(this.angle);
+          this.ball.setSpeed(ballSpeedX, this.backswingRatio * this.club.getHeight(), ballSpeedZ);
           this.ball = null;
         }
 
