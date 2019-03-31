@@ -17,7 +17,7 @@ const HEAD_ROTATION_Z = 0.5;
 const HEAD_ROTATION_X = 0.15;
 
 const WEDGE_DISTANCE = 138;
-const WEDGE_HEIGHT = 100;
+const WEDGE_HEIGHT = 70;
 const WEDGE_TIME = 3500;
 
 export default class Wedge extends Club {

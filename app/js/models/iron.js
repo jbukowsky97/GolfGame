@@ -17,7 +17,7 @@ const HEAD_ROTATION_Z = 0.5;
 const HEAD_ROTATION_X = 0.15;
 
 const IRON_DISTANCE = 275;
-const IRON_HEIGHT = 70;
+const IRON_HEIGHT = 55;
 const IRON_TIME = 5000;
 
 export default class Iron extends Club {
