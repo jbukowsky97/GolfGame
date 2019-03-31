@@ -315,9 +315,7 @@ export default class Player extends Group {
         this.updateGolfSwing();
       } else if (currentTime - this.startClock < this.backswingEllapsed + 400) {
         if (this.ball) {
-          const ballSpeedX = this.backswingRatio * this.club.getSpeed() * -Math.cos(this.angle);
-          const ballSpeedZ = this.backswingRatio * this.club.getSpeed() * Math.sin(this.angle);
-          this.ball.setSpeed(ballSpeedX, this.backswingRatio * this.club.getHeight(), ballSpeedZ);
+          this.ball.setTravel(this.backswingRatio * this.club.getDistance(), this.angle, this.backswingRatio * this.club.getHeight(), this.backswingRatio * this.club.getTime());
           this.ball = null;
         }
 

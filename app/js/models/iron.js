@@ -16,8 +16,9 @@ const IRON_THICKNESS = .1;
 const HEAD_ROTATION_Z = 0.5;
 const HEAD_ROTATION_X = 0.15;
 
-const IRON_SPEED = .8;
-const IRON_HEIGHT = 1;
+const IRON_DISTANCE = 275;
+const IRON_HEIGHT = 70;
+const IRON_TIME = 5000;
 
 export default class Iron extends Club {
   constructor() {
@@ -67,11 +68,15 @@ export default class Iron extends Club {
     this.add(this.driverGroup);
   }
 
-  getSpeed() {
-    return IRON_SPEED;
+  getDistance() {
+    return IRON_DISTANCE;
   }
 
   getHeight() {
     return IRON_HEIGHT;
+  }
+
+  getTime() {
+    return IRON_TIME;
   }
 }

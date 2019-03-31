@@ -16,8 +16,9 @@ const PUTTER_THICKNESS = .1;
 const HEAD_ROTATION_Z = 0.5;
 const HEAD_ROTATION_X = 0.15;
 
-const PUTTER_SPEED = .7;
+const PUTTER_DISTANCE = 20;
 const PUTTER_HEIGHT = 0;
+const PUTTER_TIME = 1000;
 
 export default class Putter extends Club {
   constructor() {
@@ -67,11 +68,15 @@ export default class Putter extends Club {
     this.add(this.driverGroup);
   }
 
-  getSpeed() {
-    return PUTTER_SPEED;
+  getDistance() {
+    return PUTTER_DISTANCE;
   }
 
   getHeight() {
     return PUTTER_HEIGHT;
+  }
+
+  getTime() {
+    return PUTTER_TIME;
   }
 }

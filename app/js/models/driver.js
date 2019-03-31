@@ -16,8 +16,9 @@ const DRIVER_THICKNESS = .1;
 const HEAD_ROTATION_Z = 0.5;
 const HEAD_ROTATION_X = 0.15;
 
-const DRIVER_SPEED = 2;
-const DRIVER_HEIGHT = .7;
+const DRIVER_DISTANCE = 385;
+const DRIVER_HEIGHT = 40;
+const DRIVER_TIME = 6000;
 
 export default class Driver extends Club {
   constructor() {
@@ -67,11 +68,15 @@ export default class Driver extends Club {
     this.add(this.driverGroup);
   }
 
-  getSpeed() {
-    return DRIVER_SPEED;
+  getDistance() {
+    return DRIVER_DISTANCE;
   }
   
   getHeight() {
     return DRIVER_HEIGHT;
+  }
+
+  getTime() {
+    return DRIVER_TIME;
   }
 }

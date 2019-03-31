@@ -16,8 +16,9 @@ const WEDGE_THICKNESS = .1;
 const HEAD_ROTATION_Z = 0.5;
 const HEAD_ROTATION_X = 0.15;
 
-const WEDGE_SPEED = .5;
-const WEDGE_HEIGHT = 1;
+const WEDGE_DISTANCE = 138;
+const WEDGE_HEIGHT = 100;
+const WEDGE_TIME = 3500;
 
 export default class Wedge extends Club {
   constructor() {
@@ -67,11 +68,15 @@ export default class Wedge extends Club {
     this.add(this.driverGroup);
   }
 
-  getSpeed() {
-    return WEDGE_SPEED;
+  getDistance() {
+    return WEDGE_DISTANCE;
   }
 
   getHeight() {
     return WEDGE_HEIGHT;
+  }
+
+  getTime() {
+    return WEDGE_TIME;
   }
 }
