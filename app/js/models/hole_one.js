@@ -1,4 +1,4 @@
-import { Group, BoxBufferGeometry, MeshPhongMaterial, Mesh, FontLoader, TextBufferGeometry, Vector3, BufferGeometry, CylinderBufferGeometry } from 'three';
+import { Group, BoxBufferGeometry, MeshPhongMaterial, Mesh, FontLoader, TextBufferGeometry, Vector3, BufferGeometry, CylinderBufferGeometry, Shape, ExtrudeBufferGeometry } from 'three';
 
 const FLOOR_HEIGHT = 1;
 const FAIRWAY_WIDTH = 70;
@@ -9,6 +9,11 @@ const TEE_BOX_DEPTH = 30;
 const GREEN_WIDTH = 50;
 const GREEN_DEPTH = 50;
 const HOLE_RADIUS = .2;
+const FLAG_POLE_RADIUS = HOLE_RADIUS / 2;
+const FLAG_POLE_HEIGHT = 6;
+const FLAG_HEIGHT = 1;
+const FLAG_DEPTH = 1;
+const FLAG_THICKNESS = FLAG_POLE_RADIUS;
 
 const TEE_BOX_DIRECTION_Y = 3 * Math.PI / 2;
 
@@ -47,10 +52,38 @@ export default class HoleOne extends Group {
     const holeMaterial = new MeshPhongMaterial({ color: 0x000000, transparent: true, opacity: .75 });
     this.hole = new Mesh(holeGeometry, holeMaterial);
     this.hole.position.y = 0.01;
-    
+
+    const flagPoleGeometry = new CylinderBufferGeometry(FLAG_POLE_RADIUS, FLAG_POLE_RADIUS, FLAG_POLE_HEIGHT, 16);
+    flagPoleGeometry.translate(0, FLAG_POLE_HEIGHT / 2, 0);
+    const flagPoleMaterial = new MeshPhongMaterial({ color: 0xffffff });
+    this.flagPole = new Mesh(flagPoleGeometry, flagPoleMaterial);
+
+    const flagShape = new Shape();
+    flagShape.moveTo(0, 0);
+    flagShape.lineTo(0, FLAG_HEIGHT);
+    flagShape.lineTo(FLAG_DEPTH, FLAG_HEIGHT / 2);
+    flagShape.lineTo(0, 0);
+
+    const flagSettings = {
+      steps: 2,
+      depth: FLAG_THICKNESS,
+      bevelEnabled: false
+    };
+
+    const flagGeometry = new ExtrudeBufferGeometry( flagShape, flagSettings );
+    flagGeometry.translate(0, -FLAG_HEIGHT, -FLAG_THICKNESS / 2);
+    const flagMaterial = new MeshPhongMaterial({ color: 0xff0000 });
+    this.flag = new Mesh(flagGeometry, flagMaterial);
+    this.flag.position.set(0, FLAG_POLE_HEIGHT, 0);
+
+    this.flagGroup = new Group();
+    this.flagGroup.add(this.flagPole);
+    this.flagGroup.add(this.flag);
+
     this.greenGroup = new Group();
     this.greenGroup.add(this.green);
     this.greenGroup.add(this.hole);
+    this.greenGroup.add(this.flagGroup);
     this.greenGroup.position.set(0, 0.01, -FAIRWAY_DEPTH + GREEN_DEPTH);
 
     // const loader = new FontLoader();
@@ -83,8 +116,13 @@ export default class HoleOne extends Group {
     this.teeboxCoords = new Vector3();
     this.teebox.getWorldPosition(this.teeboxCoords);
 
+    this.greenCoords = new Vector3();
+    this.greenGroup.getWorldPosition(this.greenCoords);
+
     this.holeCoords = new Vector3();
     this.greenGroup.getWorldPosition(this.holeCoords);
+
+    this.flagIn = true;
   }
 
   getTeeBoxDirection() {
@@ -94,6 +132,21 @@ export default class HoleOne extends Group {
   insideTeeBox(coords) {
     return (coords.x >= this.teeboxCoords.x - TEE_BOX_WIDTH / 2 && coords.x <= this.teeboxCoords.x + TEE_BOX_WIDTH / 2
       && coords.z <= this.teeboxCoords.z && coords.z >= this.teeboxCoords.z - TEE_BOX_DEPTH);
+  }
+
+  onGreen(coords) {
+    if (coords.x >= this.greenCoords.x - GREEN_WIDTH / 2 && coords.x <= this.greenCoords.x + GREEN_WIDTH / 2
+      && coords.z <= this.greenCoords.z + GREEN_DEPTH / 2 && coords.z >= this.greenCoords.z - GREEN_DEPTH / 2) {
+      if (this.flagIn) {
+        this.flagIn = false;
+        this.greenGroup.remove(this.flagGroup);
+      }
+    } else {
+      if (!this.flagIn) {
+        this.flagIn = true;
+        this.greenGroup.add(this.flagGroup);
+      }
+    }
   }
 
   insideHole(coords, radius) {

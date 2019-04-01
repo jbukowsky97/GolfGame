@@ -64,6 +64,7 @@ export default class App {
     this.actionUp = true;
 
     this.ballCoords = new Vector3();
+    this.playerCoords = new Vector3();
 
     const _self = this;
     document.addEventListener("keydown", onKeyDown, false);
@@ -104,7 +105,9 @@ export default class App {
     const delta = currentTime - this.prevTime;
     this.prevTime = currentTime;
 
-    
+    this.player.getWorldPosition(this.playerCoords);
+    this.holeOne.onGreen(this.playerCoords);
+
     this.ball.getWorldPosition(this.ballCoords);
     if (this.holeOne.insideHole(this.ballCoords, .13)) {
       this.scene.remove(this.ball);
@@ -148,20 +151,17 @@ export default class App {
     if (this.keys.includes(69) && this.actionUp) {
       this.actionUp = false;
       if (GAME_STATE[this.state] === 'PLACE_BALL') {
-        const playerCoords = new Vector3();
-        this.player.getWorldPosition(playerCoords);
-        if (this.holeOne.insideTeeBox(playerCoords)) {
+
+        if (this.holeOne.insideTeeBox(this.playerCoords)) {
           this.state++;
-          this.tee.position.set(playerCoords.x, 0, playerCoords.z);
+          this.tee.position.set(this.playerCoords.x, 0, this.playerCoords.z);
           this.ball.teed = true;
-          this.ball.position.set(playerCoords.x, this.tee.getTeeHeight(), playerCoords.z);
+          this.ball.position.set(this.playerCoords.x, this.tee.getTeeHeight(), this.playerCoords.z);
           this.scene.add(this.tee);
           this.scene.add(this.ball);
         }
       } else if (GAME_STATE[this.state] === 'LIVE_BALL') {
-        const playerCoords = new Vector3();
-        this.player.getWorldPosition(playerCoords);
-        if (this.ball.withinRange(playerCoords)) {
+        if (this.ball.withinRange(this.playerCoords)) {
           this.state++;
           const rotationY = this.player.rotation.y + 3 / 2 * Math.PI;
           this.player.golfPosture();
