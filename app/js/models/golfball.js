@@ -21,6 +21,16 @@ export default class GolfBall extends Group {
     this.teed = false;
 
     this.traveling = false;
+    
+    this.live = false;
+
+    this.ballCoords = new Vector3();
+
+    this.inHole = false;
+  }
+
+  getHeight(x) {
+    return this.height * (-4 * Math.pow(x, 2) + 4 * x);
   }
 
   update() {
@@ -48,10 +58,14 @@ export default class GolfBall extends Group {
     if (this.traveling) {
       const currentTime = new Date().getTime();
       const ellapsed = currentTime - this.startClock;
+      if (ellapsed / this.time >= this.ratioCrossedHole) {
+        this.inHole = true;
+        this.traveling = false;
+      }
       if (ellapsed < this.time) {
         this.position.x = this.initialPosition.x + this.distanceX * ellapsed / this.time;
         this.position.z = this.initialPosition.z + this.distanceZ * ellapsed / this.time;
-        this.position.y = this.initialPosition.y + this.height * (-4 * Math.pow(ellapsed / this.time, 2) + 4 * ellapsed / this.time);
+        this.position.y = this.initialPosition.y + this.getHeight(ellapsed / this.time);
       } else {
         this.position.x = this.initialPosition.x + this.distanceX;
         this.position.z = this.initialPosition.z + this.distanceZ;
@@ -61,22 +75,54 @@ export default class GolfBall extends Group {
     }
   }
 
+  setTarget(hole, holeRadius = .2) {
+    this.targetHole = hole;
+    this.targetHoleRadius = holeRadius;
+  }
+
   setTravel(distance, angle, height, time) {
     this.teed = false;
+    this.distance = distance;
     this.distanceX = distance * -Math.cos(angle);
     this.distanceZ = distance * Math.sin(angle);
     this.height = height;
     this.time = time;
     this.initialPosition = { ...this.position };
+    this.finalPosition = new Vector3(this.initialPosition.x + this.distanceX, this.initialPosition.y, this.initialPosition.z + this.distanceZ);
     this.traveling = true;
     this.startClock = new Date().getTime();
+    this.ratioCrossedHole = this.timeCrossedHole();
   }
 
-  withinRange(coords) {
-    const ballCoords = new Vector3();
-    this.ball.getWorldPosition(ballCoords);
+  distanceTo(coords) {
+    this.ball.getWorldPosition(this.ballCoords);
 
-    const distance = Math.sqrt(Math.pow(coords.x - ballCoords.x, 2) + Math.pow(coords.z - ballCoords.z, 2));
+    return Math.sqrt(Math.pow(coords.x - this.ballCoords.x, 2) + Math.pow(coords.z - this.ballCoords.z, 2));
+  }
+
+  withinRange(coords, distance = undefined) {
+    if (!distance) {
+      distance = this.distanceTo(coords);
+    }
     return distance < RANGE;
+  }
+
+  timeCrossedHole() {
+    const slope = (this.finalPosition.z - this.initialPosition.z) / (this.finalPosition.x - this.initialPosition.x);
+    const b = this.initialPosition.z - slope * this.initialPosition.x;
+    const perpSlope = -1 / slope;
+    const perpB = this.targetHole.z - perpSlope * this.targetHole.x;
+    const xCoefficient = slope - perpSlope;
+    const bDiff = perpB - b;
+    const crossX = bDiff / xCoefficient;
+    const crossZ = slope * crossX + b;
+    const distance = Math.sqrt(Math.pow(crossZ - this.targetHole.z, 2), Math.pow(crossX - this.targetHole.x, 2));
+    const distanceFromInitial = Math.sqrt(Math.pow(this.targetHole.z - this.initialPosition.z, 2), Math.pow(this.targetHole.x - this.initialPosition.x, 2));
+    const ratio = distanceFromInitial / this.distance;
+    if (distance < this.targetHoleRadius && ratio <= 1 && this.getHeight(ratio) === 0.0) {
+      return distanceFromInitial / this.distance;
+    } else {
+      return undefined;
+    }
   }
 }

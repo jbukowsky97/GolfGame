@@ -1,5 +1,5 @@
-import { MeshPhongMaterial, Mesh, Group, BoxBufferGeometry, SphereBufferGeometry, ConeBufferGeometry } from 'three';
-import Driver from './driver';
+import { MeshPhongMaterial, Mesh, Group, BoxBufferGeometry, SphereBufferGeometry, ConeBufferGeometry, Vector3 } from 'three';
+import Font from './font';
 
 const LEG_HEIGHT = 1.1;
 const LEG_WIDTH = .2;
@@ -25,12 +25,16 @@ const UPPER_BODY_THETA = 0.6;
 const ARM_THETA = Math.acos(WAIST_WIDTH / 2 / ARM_HEIGHT);
 const CLUB_THETA = -1.5708 + ARM_THETA;
 
+const YARD = 1.375;
+
 export default class Player extends Group {
   constructor(camera) {
     super();
 
     this.camera = camera;
     this.add(this.camera);
+
+    this.currentClubElement = document.getElementById("current_club");
 
     const legGeometry = new BoxBufferGeometry(LEG_WIDTH, LEG_HEIGHT, LEG_WIDTH);
     legGeometry.translate(0, -LEG_HEIGHT / 2, 0);
@@ -154,6 +158,7 @@ export default class Player extends Group {
       this.leftArmAndClub.add(this.club);
       this.club.position.set(.11, -ARM_HEIGHT, 0);
     }
+    this.currentClubElement.innerHTML = `${this.club.getName()}: ${(this.club.getDistance() / YARD).toFixed(1)} yards`
   }
 
   golfPosture() {

@@ -1,4 +1,4 @@
-import { Group, BoxBufferGeometry, MeshPhongMaterial, Mesh, FontLoader, TextBufferGeometry, Vector3, BufferGeometry, CylinderBufferGeometry, Shape, ExtrudeBufferGeometry } from 'three';
+import { Group, BoxBufferGeometry, MeshPhongMaterial, Mesh, Vector3, CylinderBufferGeometry, Shape, ExtrudeBufferGeometry } from 'three';
 
 const FLOOR_HEIGHT = 1;
 const FAIRWAY_WIDTH = 70;
@@ -15,9 +15,7 @@ const FLAG_HEIGHT = 1;
 const FLAG_DEPTH = 1;
 const FLAG_THICKNESS = FLAG_POLE_RADIUS;
 
-const TEE_BOX_DIRECTION_Y = 3 * Math.PI / 2;
-
-export default class HoleOne extends Group {
+export default class HoleTwo extends Group {
   constructor() {
     super();
 
@@ -86,57 +84,57 @@ export default class HoleOne extends Group {
     this.greenGroup.add(this.flagGroup);
     this.greenGroup.position.set(0, 0.01, -FAIRWAY_DEPTH + GREEN_DEPTH);
 
-    // const loader = new FontLoader();
-
-    // const _self = this;
-    // loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
-    //   _self.geometry = new TextBufferGeometry( 'Hello three.js!', {
-    //     font: font,
-    //     size: 80,
-    //     height: 5,
-    //     curveSegments: 12,
-    //     bevelEnabled: true,
-    //     bevelThickness: 10,
-    //     bevelSize: 8,
-    //     bevelSegments: 5,
-    //   } );
-    // } );
-
-    // const fudge = new MeshPhongMaterial({ color: 0x1a4c1c });
-    // this.text = new Mesh(this.geometry, fudge);
-    // this.text.position.y = 0;
-
     this.add(this.fairway);
     this.add(this.leftRough);
     this.add(this.rightRough);
     this.add(this.teebox);
     this.add(this.greenGroup);
-    // this.add(this.text);
-
-    this.teeboxCoords = new Vector3();
-    this.teebox.getWorldPosition(this.teeboxCoords);
-
-    this.greenCoords = new Vector3();
-    this.greenGroup.getWorldPosition(this.greenCoords);
 
     this.holeCoords = new Vector3();
-    this.greenGroup.getWorldPosition(this.holeCoords);
 
     this.flagIn = true;
   }
 
-  getTeeBoxDirection() {
-    return TEE_BOX_DIRECTION_Y;
+  placeCoords() {
+    const teeboxCoords = new Vector3();
+    this.getWorldPosition(teeboxCoords);
+    teeboxCoords.x += this.teebox.position.x;
+    teeboxCoords.z += -this.teebox.position.z;
+    this.teeboxSquare = {
+      left: teeboxCoords.x - TEE_BOX_WIDTH / 2,
+      right: teeboxCoords.x + TEE_BOX_WIDTH / 2,
+      front: teeboxCoords.z,
+      back: teeboxCoords.z + TEE_BOX_DEPTH,
+    };
+    
+    const greenCoords = new Vector3();
+    this.getWorldPosition(greenCoords);
+    greenCoords.x += this.greenGroup.position.x;
+    greenCoords.z += -this.greenGroup.position.z;
+    this.greenSquare = {
+      left: greenCoords.x - GREEN_WIDTH / 2,
+      right: greenCoords.x + GREEN_WIDTH / 2,
+      front: greenCoords.z - GREEN_DEPTH / 2,
+      back: greenCoords.z + GREEN_DEPTH / 2,
+    };
+
+    this.getWorldPosition(this.holeCoords);
+    this.holeCoords.x += this.greenGroup.position.x;
+    this.holeCoords.z += -this.greenGroup.position.z;
+  }
+
+  insideSquare(coords, square) {
+    return (coords.x >= square.left && coords.x <= square.right
+      && coords.z <= square.back && coords.z >= square.front);
   }
 
   insideTeeBox(coords) {
-    return (coords.x >= this.teeboxCoords.x - TEE_BOX_WIDTH / 2 && coords.x <= this.teeboxCoords.x + TEE_BOX_WIDTH / 2
-      && coords.z <= this.teeboxCoords.z && coords.z >= this.teeboxCoords.z - TEE_BOX_DEPTH);
+    return this.insideSquare(coords, this.teeboxSquare);
   }
 
   onGreen(coords) {
-    if (coords.x >= this.greenCoords.x - GREEN_WIDTH / 2 && coords.x <= this.greenCoords.x + GREEN_WIDTH / 2
-      && coords.z <= this.greenCoords.z + GREEN_DEPTH / 2 && coords.z >= this.greenCoords.z - GREEN_DEPTH / 2) {
+    console.log(coords, this.greenSquare);
+    if (this.insideSquare(coords, this.greenSquare)) {
       if (this.flagIn) {
         this.flagIn = false;
         this.greenGroup.remove(this.flagGroup);

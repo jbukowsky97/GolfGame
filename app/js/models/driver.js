@@ -68,6 +68,10 @@ export default class Driver extends Club {
     this.add(this.driverGroup);
   }
 
+  getName() {
+    return 'Driver';
+  }
+
   getDistance() {
     return DRIVER_DISTANCE;
   }

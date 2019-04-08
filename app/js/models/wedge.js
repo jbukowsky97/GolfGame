@@ -68,6 +68,10 @@ export default class Wedge extends Club {
     this.add(this.driverGroup);
   }
 
+  getName() {
+    return 'Wedge';
+  }
+
   getDistance() {
     return WEDGE_DISTANCE;
   }

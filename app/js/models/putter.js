@@ -68,6 +68,10 @@ export default class Putter extends Club {
     this.add(this.driverGroup);
   }
 
+  getName() {
+    return 'Putter';
+  }
+
   getDistance() {
     return PUTTER_DISTANCE;
   }

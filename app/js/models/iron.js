@@ -68,6 +68,10 @@ export default class Iron extends Club {
     this.add(this.driverGroup);
   }
 
+  getName() {
+    return 'Iron';
+  }
+
   getDistance() {
     return IRON_DISTANCE;
   }
