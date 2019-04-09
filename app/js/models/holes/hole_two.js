@@ -121,6 +121,7 @@ export default class HoleTwo extends Group {
     this.getWorldPosition(this.holeCoords);
     this.holeCoords.x += this.greenGroup.position.x;
     this.holeCoords.z += -this.greenGroup.position.z;
+    
   }
 
   insideSquare(coords, square) {
@@ -133,7 +134,6 @@ export default class HoleTwo extends Group {
   }
 
   onGreen(coords) {
-    console.log(coords, this.greenSquare);
     if (this.insideSquare(coords, this.greenSquare)) {
       if (this.flagIn) {
         this.flagIn = false;

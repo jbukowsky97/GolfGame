@@ -123,6 +123,9 @@ export default class App {
       this.scene.remove(this.ball);
       this.course.nextHole();
       this.state = 0;
+      if (this.course.getCurrentHole !== undefined) {
+        this.ball.setTarget(this.course.getCurrentHole().holeCoords);
+      }
     }
 
     if (this.keys.includes(87) && !this.keys.includes(83) && this.player.finishedSwing) {

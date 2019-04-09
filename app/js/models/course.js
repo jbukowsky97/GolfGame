@@ -16,7 +16,7 @@ export default class Course extends Group {
     this.add(this.holeTwo);
 
     this.holes = [this.holeOne, this.holeTwo];
-    this.currentHole = 1;
+    this.currentHole = 0;
   }
 
   getCurrentHole() {
