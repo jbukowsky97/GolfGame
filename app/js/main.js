@@ -25,7 +25,7 @@ export default class App {
     this.scoreElement = document.getElementById("score");
     this.distanceElement = document.getElementById('distance');
     this.renderer = new THREE.WebGLRenderer({canvas: c, antialias: true});
-    this.renderer.setSize( 4 / 5 * window.innerWidth, 4 / 5 * window.innerHeight );
+    this.renderer.setSize( window.innerWidth, window.innerHeight );
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color( 0xe2fdff );
     this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
@@ -47,6 +47,7 @@ export default class App {
     this.tee = new Tee();
 
     this.player = new Player(this.camera);
+    // this.player.position.z = -26.9;
     this.player.neutralPosture();
     this.player.updateClub(this.driver);
 
@@ -62,10 +63,10 @@ export default class App {
     this.keys = new Array();
     this.actionUp = true;
 
-    this.ballCoords = new Vector3();
     this.playerCoords = new Vector3();
 
     this.score = 0;
+    this.gameover = false;
 
     const _self = this;
     document.addEventListener("keydown", onKeyDown, false);
@@ -109,6 +110,9 @@ export default class App {
   }
 
   render() {
+    if (this.gameover) {
+      return;
+    }
     const currentTime = new Date().getTime();
     const delta = currentTime - this.prevTime;
     this.prevTime = currentTime;
@@ -116,7 +120,6 @@ export default class App {
     this.player.getWorldPosition(this.playerCoords);
     this.course.getCurrentHole().onGreen(this.playerCoords);
 
-    this.ball.getWorldPosition(this.ballCoords);
     if (this.ball.inHole) {
       this.ball.inHole = false;
       this.ball.live = false;
@@ -185,10 +188,8 @@ export default class App {
           const rotationY = this.player.rotation.y + 3 / 2 * Math.PI;
           this.player.golfPosture();
           this.player.rotation.y = rotationY
-          const ballCoords = new Vector3();
-          this.ball.getWorldPosition(ballCoords);
           
-          this.player.position.set(ballCoords.x, 0, ballCoords.z);
+          this.player.position.set(this.ball.ballCoords.x, 0, this.ball.ballCoords.z);
         }
       } else if (GAME_STATE[this.state] === 'READY') {
         this.state--;
@@ -203,6 +204,12 @@ export default class App {
     
     this.player.animate();
     this.ball.update();
+
+    this.course.keepWithin(this.player);
+    if (!this.course.withinFloor(this.ball.ballCoords.x, this.ball.ballCoords.z)) {
+      this.gameover = true;
+    }
+
     if (this.ball.live) {
       this.distanceElement.innerHTML = `Distance: ${(this.ball.distanceTo(this.course.getCurrentHole().holeCoords) / YARD).toFixed(1)} yards`;
     } else if (this.distanceElement.innerHTML !== 'Distance:') {

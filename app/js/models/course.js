@@ -11,10 +11,10 @@ export default class Course extends Group {
     super();
 
     const floorGeometry = new BoxBufferGeometry(FLOOR_WIDTH, FLOOR_HEIGHT, FLOOR_DEPTH);
-    floorGeometry.translate(0, -FLOOR_HEIGHT / 2, 0);
+    floorGeometry.translate(0, -FLOOR_HEIGHT / 2, -FLOOR_DEPTH / 2);
     const floorMesh = new MeshPhongMaterial({ color: 0x593b00 });
     this.floor = new Mesh(floorGeometry, floorMesh);
-    this.floor.position.y = -0.01;
+    this.floor.position.set(0, -0.1, 10);
 
     this.holeOne = new HoleOne();
     this.holeTwo = new HoleTwo();
@@ -31,13 +31,27 @@ export default class Course extends Group {
 
     const floorCoords = new Vector3();
     this.floor.getWorldPosition(floorCoords);
-    
+    this.floorSquare = {
+      left: floorCoords.x - FLOOR_WIDTH / 2,
+      right: floorCoords.x + FLOOR_WIDTH / 2,
+      front: floorCoords.z,
+      back: floorCoords.z - FLOOR_DEPTH,
+    };
   }
 
-  // withinFloor(x, z) {
-  //   return (x >= square.left && coords.x <= square.right
-  //     && coords.z <= square.back && coords.z >= square.front);
-  // }
+  keepWithin(object) {
+    if (!this.withinFloor(object.position.x, object.position.z)) {
+      object.position.x = Math.min(this.floorSquare.right,
+        Math.max(this.floorSquare.left, object.position.x));
+      object.position.z = Math.min(this.floorSquare.front,
+        Math.max(this.floorSquare.back, object.position.z));
+    }
+  }
+
+  withinFloor(x, z) {
+    return (x >= this.floorSquare.left && x <= this.floorSquare.right
+      && z <= this.floorSquare.front && z >= this.floorSquare.back);
+  }
 
   getCurrentHole() {
     return this.holes[this.currentHole];

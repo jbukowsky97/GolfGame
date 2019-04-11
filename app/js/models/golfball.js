@@ -55,6 +55,7 @@ export default class GolfBall extends Group {
     //   this.speedX = 0.0;
     //   this.speedZ = 0.0;
     // }
+    this.ball.getWorldPosition(this.ballCoords);
     if (this.traveling) {
       const currentTime = new Date().getTime();
       const ellapsed = currentTime - this.startClock;
@@ -95,8 +96,6 @@ export default class GolfBall extends Group {
   }
 
   distanceTo(coords) {
-    this.ball.getWorldPosition(this.ballCoords);
-
     return Math.sqrt(Math.pow(coords.x - this.ballCoords.x, 2) + Math.pow(coords.z - this.ballCoords.z, 2));
   }
 
@@ -119,8 +118,10 @@ export default class GolfBall extends Group {
     const distance = Math.sqrt(Math.pow(crossZ - this.targetHole.z, 2), Math.pow(crossX - this.targetHole.x, 2));
     const distanceFromInitial = Math.sqrt(Math.pow(this.targetHole.z - this.initialPosition.z, 2), Math.pow(this.targetHole.x - this.initialPosition.x, 2));
     const ratio = distanceFromInitial / this.distance;
-    if (distance < this.targetHoleRadius && ratio <= 1 && this.getHeight(ratio) === 0.0) {
-      return distanceFromInitial / this.distance;
+    console.log(distance, this.targetHoleRadius, ratio, this.getHeight(ratio));
+    if (distance < this.targetHoleRadius && ratio <= 1 + this.targetHoleRadius && this.getHeight(ratio) <= 0.0) {
+      console.log(distanceFromInitial / (this.distance + this.targetHoleRadius));
+      return distanceFromInitial / (this.distance + this.targetHoleRadius);
     } else {
       return undefined;
     }
