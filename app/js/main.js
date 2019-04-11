@@ -48,6 +48,8 @@ export default class App {
 
     this.player = new Player(this.camera);
     // this.player.position.z = -26.9;
+    this.player.position.set(-150, 0, -600);
+    this.player.rotation.y = Math.PI;
     this.player.neutralPosture();
     this.player.updateClub(this.driver);
 

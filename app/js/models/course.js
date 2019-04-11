@@ -27,7 +27,7 @@ export default class Course extends Group {
     this.add(this.holeTwo);
 
     this.holes = [this.holeOne, this.holeTwo];
-    this.currentHole = 0;
+    this.currentHole = 1;
 
     const floorCoords = new Vector3();
     this.floor.getWorldPosition(floorCoords);

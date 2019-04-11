@@ -2,7 +2,8 @@ import { Group, BoxBufferGeometry, MeshPhongMaterial, Mesh, Vector3, CylinderBuf
 
 const FLOOR_HEIGHT = 1;
 const FAIRWAY_WIDTH = 70;
-const FAIRWAY_DEPTH = 600;
+const FAIRWAY_DEPTH = 260;
+const FAIRWAY_DEPTH_2 = 240 + FAIRWAY_WIDTH;
 const ROUGH_WIDTH = 30;
 const TEE_BOX_WIDTH = 20;
 const TEE_BOX_DEPTH = 30;
@@ -20,19 +21,39 @@ export default class HoleTwo extends Group {
     super();
 
     const fairwayGeometry = new BoxBufferGeometry(FAIRWAY_WIDTH, FLOOR_HEIGHT, FAIRWAY_DEPTH);
-    fairwayGeometry.translate(0, -FLOOR_HEIGHT / 2, -FAIRWAY_DEPTH / 2 + 2);
+    fairwayGeometry.translate(0, -FLOOR_HEIGHT / 2, -FAIRWAY_DEPTH / 2);
     const fairwayMaterial = new MeshPhongMaterial({ color: 0x53e25b });
     this.fairway = new Mesh(fairwayGeometry, fairwayMaterial);
 
-    const roughGeometry = new BoxBufferGeometry(ROUGH_WIDTH, FLOOR_HEIGHT, FAIRWAY_DEPTH);
-    roughGeometry.translate(0, -FLOOR_HEIGHT / 2, -FAIRWAY_DEPTH / 2 + 2);
+    const fairway2Geometry = new BoxBufferGeometry(FAIRWAY_WIDTH, FLOOR_HEIGHT, FAIRWAY_DEPTH_2);
+    fairway2Geometry.translate(0, -FLOOR_HEIGHT / 2, -FAIRWAY_DEPTH_2 / 2);
+    this.fairway2 = new Mesh(fairway2Geometry, fairwayMaterial);
+    this.fairway2.rotation.y = -Math.PI / 2;
+    this.fairway2.position.set(-FAIRWAY_WIDTH / 2, 0, -FAIRWAY_DEPTH - FAIRWAY_WIDTH / 2);
+
     const roughMaterial = new MeshPhongMaterial({ color: 0x1a4c1c });
 
-    this.leftRough = new Mesh(roughGeometry, roughMaterial);
+    const leftRoughGeometry = new BoxBufferGeometry(ROUGH_WIDTH, FLOOR_HEIGHT, FAIRWAY_DEPTH + FAIRWAY_WIDTH);
+    leftRoughGeometry.translate(0, -FLOOR_HEIGHT / 2, -FAIRWAY_DEPTH / 2 - FAIRWAY_WIDTH / 2);
+    this.leftRough = new Mesh(leftRoughGeometry, roughMaterial);
     this.leftRough.position.set(-FAIRWAY_WIDTH / 2 - ROUGH_WIDTH / 2, 0, 0);
 
-    this.rightRough = new Mesh(roughGeometry, roughMaterial);
+    const rightRoughGeometry = new BoxBufferGeometry(ROUGH_WIDTH, FLOOR_HEIGHT, FAIRWAY_DEPTH);
+    rightRoughGeometry.translate(0, -FLOOR_HEIGHT / 2, -FAIRWAY_DEPTH / 2);
+    this.rightRough = new Mesh(rightRoughGeometry, roughMaterial);
     this.rightRough.position.set(FAIRWAY_WIDTH / 2 + ROUGH_WIDTH / 2, 0, 0);
+
+    const leftRough2Geometry = new BoxBufferGeometry(ROUGH_WIDTH, FLOOR_HEIGHT, FAIRWAY_DEPTH_2 + ROUGH_WIDTH);
+    leftRough2Geometry.translate(0, -FLOOR_HEIGHT / 2, -FAIRWAY_DEPTH_2 / 2 - ROUGH_WIDTH / 2);
+    this.leftRough2 = new Mesh(leftRough2Geometry, roughMaterial);
+    this.leftRough2.rotation.y = -Math.PI / 2;
+    this.leftRough2.position.set(-FAIRWAY_WIDTH / 2 - ROUGH_WIDTH, 0, -FAIRWAY_DEPTH - FAIRWAY_WIDTH - ROUGH_WIDTH / 2)
+
+    const rightRough2Geometry = new BoxBufferGeometry(ROUGH_WIDTH, FLOOR_HEIGHT, FAIRWAY_DEPTH_2 - FAIRWAY_WIDTH - ROUGH_WIDTH);
+    rightRough2Geometry.translate(0, -FLOOR_HEIGHT / 2, -FAIRWAY_DEPTH_2 / 2 + FAIRWAY_WIDTH / 2 + ROUGH_WIDTH / 2);
+    this.rightRough2 = new Mesh(rightRough2Geometry, roughMaterial);
+    this.rightRough2.rotation.y = -Math.PI / 2;
+    this.rightRough2.position.set(FAIRWAY_WIDTH / 2 + ROUGH_WIDTH, 0, -FAIRWAY_DEPTH + ROUGH_WIDTH / 2)
 
     const teeboxGeometry = new BoxBufferGeometry(TEE_BOX_WIDTH, FLOOR_HEIGHT, TEE_BOX_DEPTH);
     teeboxGeometry.translate(0, -FLOOR_HEIGHT / 2, -TEE_BOX_DEPTH / 2);
@@ -82,11 +103,14 @@ export default class HoleTwo extends Group {
     this.greenGroup.add(this.green);
     this.greenGroup.add(this.hole);
     this.greenGroup.add(this.flagGroup);
-    this.greenGroup.position.set(0, 0.01, -FAIRWAY_DEPTH + GREEN_DEPTH);
+    this.greenGroup.position.set(FAIRWAY_DEPTH_2 - FAIRWAY_WIDTH, 0.01, -FAIRWAY_DEPTH - FAIRWAY_WIDTH / 2);
 
     this.add(this.fairway);
+    this.add(this.fairway2);
     this.add(this.leftRough);
     this.add(this.rightRough);
+    this.add(this.leftRough2);
+    this.add(this.rightRough2);
     this.add(this.teebox);
     this.add(this.greenGroup);
 
@@ -103,30 +127,28 @@ export default class HoleTwo extends Group {
     this.teeboxSquare = {
       left: teeboxCoords.x - TEE_BOX_WIDTH / 2,
       right: teeboxCoords.x + TEE_BOX_WIDTH / 2,
-      front: teeboxCoords.z,
-      back: teeboxCoords.z + TEE_BOX_DEPTH,
+      front: teeboxCoords.z + TEE_BOX_DEPTH,
+      back: teeboxCoords.z,
     };
     
     const greenCoords = new Vector3();
     this.getWorldPosition(greenCoords);
-    greenCoords.x += this.greenGroup.position.x;
+    greenCoords.x += -this.greenGroup.position.x;
     greenCoords.z += -this.greenGroup.position.z;
     this.greenSquare = {
       left: greenCoords.x - GREEN_WIDTH / 2,
       right: greenCoords.x + GREEN_WIDTH / 2,
-      front: greenCoords.z - GREEN_DEPTH / 2,
-      back: greenCoords.z + GREEN_DEPTH / 2,
+      front: greenCoords.z + GREEN_DEPTH / 2,
+      back: greenCoords.z - GREEN_DEPTH / 2,
     };
 
-    this.getWorldPosition(this.holeCoords);
-    this.holeCoords.x += this.greenGroup.position.x;
-    this.holeCoords.z += -this.greenGroup.position.z;
-    
+    this.holeCoords.x += greenCoords.x;
+    this.holeCoords.z += greenCoords.z;
   }
 
   insideSquare(coords, square) {
     return (coords.x >= square.left && coords.x <= square.right
-      && coords.z <= square.back && coords.z >= square.front);
+      && coords.z <= square.front && coords.z >= square.back);
   }
 
   insideTeeBox(coords) {
