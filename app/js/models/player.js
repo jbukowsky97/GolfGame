@@ -134,6 +134,8 @@ export default class Player extends Group {
       this.leftArmAndClub.remove(this.club);
     }
 
+    this.pivotGroup.position.set(0, 0, 0);
+
     this.upperBodyGroup.rotation.x = 0.0;
     this.upperBodyGroup.rotation.y = 0.0;
     this.leftArmAndClub.rotation.x = 0.0;
