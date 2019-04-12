@@ -18,8 +18,6 @@ export default class GolfBall extends Group {
 
     this.add(this.ball);
 
-    this.teed = false;
-
     this.traveling = false;
     
     this.live = false;
@@ -82,7 +80,6 @@ export default class GolfBall extends Group {
   }
 
   setTravel(distance, angle, height, time) {
-    this.teed = false;
     this.distance = distance;
     this.distanceX = distance * -Math.cos(angle);
     this.distanceZ = distance * Math.sin(angle);

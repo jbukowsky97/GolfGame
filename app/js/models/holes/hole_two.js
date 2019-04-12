@@ -120,10 +120,12 @@ export default class HoleTwo extends Group {
   }
 
   placeCoords() {
+    const worldCoords = new Vector3();
+    this.getWorldPosition(worldCoords);
+
     const teeboxCoords = new Vector3();
-    this.getWorldPosition(teeboxCoords);
-    teeboxCoords.x += this.teebox.position.x;
-    teeboxCoords.z += -this.teebox.position.z;
+    teeboxCoords.x = worldCoords.x + this.teebox.position.x;
+    teeboxCoords.z = worldCoords.z - this.teebox.position.z;
     this.teeboxSquare = {
       left: teeboxCoords.x - TEE_BOX_WIDTH / 2,
       right: teeboxCoords.x + TEE_BOX_WIDTH / 2,
@@ -132,9 +134,8 @@ export default class HoleTwo extends Group {
     };
     
     const greenCoords = new Vector3();
-    this.getWorldPosition(greenCoords);
-    greenCoords.x += -this.greenGroup.position.x;
-    greenCoords.z += -this.greenGroup.position.z;
+    greenCoords.x = worldCoords.x - this.greenGroup.position.x;
+    greenCoords.z = worldCoords.z - this.greenGroup.position.z;
     this.greenSquare = {
       left: greenCoords.x - GREEN_WIDTH / 2,
       right: greenCoords.x + GREEN_WIDTH / 2,
@@ -144,6 +145,24 @@ export default class HoleTwo extends Group {
 
     this.holeCoords.x += greenCoords.x;
     this.holeCoords.z += greenCoords.z;
+
+    this.holeSquare = {
+      left: worldCoords.x - FAIRWAY_WIDTH / 2 - ROUGH_WIDTH,
+      right: worldCoords.x + FAIRWAY_WIDTH / 2 + ROUGH_WIDTH,
+      front: worldCoords.z + FAIRWAY_DEPTH + FAIRWAY_WIDTH + ROUGH_WIDTH,
+      back: woorldCoords.z,
+    };
+
+    this.holeSquare2 = {
+      left: woorldCoords.x + FAIRWAY_WIDTH / 2 - FAIRWAY_DEPTH_2,
+      right: woorldCoords.x + FAIRWAY_WIDTH / 2 + ROUGH_WIDTH,
+      front: worldCoords.z + FAIRWAY_DEPTH + FAIRWAY_WIDTH + ROUGH_WIDTH,
+      back: woorldCoords.z + FAIRWAY_DEPTH - ROUGH_WIDTH,
+    };
+  }
+  
+  withinHole(object) {
+    return this.insideHole(object.position, this.holeSquare);
   }
 
   insideSquare(coords, square) {

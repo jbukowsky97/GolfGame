@@ -25,10 +25,10 @@ export default class App {
     this.scoreElement = document.getElementById("score");
     this.distanceElement = document.getElementById('distance');
     this.renderer = new THREE.WebGLRenderer({canvas: c, antialias: true});
-    this.renderer.setSize( window.innerWidth, window.innerHeight );
+    this.renderer.setSize( window.innerWidth - 20, window.innerHeight - 20 );
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color( 0xe2fdff );
-    this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+    this.camera = new THREE.PerspectiveCamera( 75, (window.innerWidth - 20) / (window.innerHeight - 20), 0.1, 1000 );
     this.camera.position.z = 8;
     this.camera.position.y = 4;
 
@@ -178,7 +178,6 @@ export default class App {
         if (this.course.getCurrentHole().insideTeeBox(this.playerCoords)) {
           this.state++;
           this.tee.position.set(this.playerCoords.x, 0, this.playerCoords.z);
-          this.ball.teed = true;
           this.ball.live = true;
           this.ball.position.set(this.playerCoords.x, this.tee.getTeeHeight(), this.playerCoords.z);
           this.scene.add(this.tee);
@@ -196,7 +195,7 @@ export default class App {
       } else if (GAME_STATE[this.state] === 'READY') {
         this.state--;
         this.score++;
-        this.scoreElement.innerHTML = `Score: ${this.score}`;
+        
         this.player.startSwing(this.ball, this.player.rotation.y);
       }
     }
@@ -208,8 +207,11 @@ export default class App {
     this.ball.update();
 
     this.course.keepWithin(this.player);
-    if (!this.course.withinFloor(this.ball.ballCoords.x, this.ball.ballCoords.z)) {
-      this.gameover = true;
+    if (!this.course.getCurrentHole().withinHole(this.ball.ballCoords)) {
+      this.ball.traveling = false;
+      this.ball.position.set(this.ball.initialPosition.x, this.ball.initialPosition.y, this.ball.initialPosition.z);
+      this.score++;
+      this.scoreElement.innerHTML = `Score: ${this.score}`;
     }
 
     if (this.ball.live) {
