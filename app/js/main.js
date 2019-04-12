@@ -22,7 +22,9 @@ const GAME_STATE = [
 export default class App {
   constructor() {
     const c = document.getElementById('mycanvas');
-    this.scoreElement = document.getElementById("score");
+    this.totalScoreElement = document.getElementById("total_score");
+    this.currentParElement = document.getElementById("current_par");
+    this.currentStrokesElement = document.getElementById("current_strokes");
     this.distanceElement = document.getElementById('distance');
     this.renderer = new THREE.WebGLRenderer({canvas: c, antialias: true});
     this.renderer.setSize( window.innerWidth - 20, window.innerHeight - 20 );
@@ -69,8 +71,12 @@ export default class App {
 
     this.playerCoords = new Vector3();
 
-    this.score = 0;
-    this.gameover = false;
+    this.totalScoreElement.innerHTML = 'Total Score: E';
+    this.currentPar = this.course.getCurrentHole().getPar();
+    this.currentParElement.innerHTML = `Current Par: ${this.currentPar}`;
+    this.totalPar = 0;
+    this.totalStrokes = 0;
+    this.currentStrokes = 0;
 
     const _self = this;
     document.addEventListener("keydown", onKeyDown, false);
@@ -114,9 +120,6 @@ export default class App {
   }
 
   render() {
-    if (this.gameover) {
-      return;
-    }
     const currentTime = new Date().getTime();
     const delta = currentTime - this.prevTime;
     this.prevTime = currentTime;
@@ -130,8 +133,19 @@ export default class App {
       this.scene.remove(this.ball);
       this.course.nextHole();
       this.state = 0;
-      if (this.course.getCurrentHole !== undefined) {
+      this.totalPar += this.currentPar;
+      this.totalStrokes += this.currentStrokes;
+      this.currentStrokes = 0;
+      this.totalScoreElement.innerHTML = `Total Score: ${this.interpretScore(this.totalPar, this.totalStrokes)}`;
+      this.currentStrokesElement.innerHTML = `Current Strokes: ${this.currentStrokes}`;
+      if (this.course.getCurrentHole() !== undefined) {
         this.ball.setTarget(this.course.getCurrentHole().holeCoords);
+        this.currentPar = this.course.getCurrentHole().getPar();
+        this.currentParElement.innerHTML = `Current Par: ${this.currentPar}`;
+      } else {
+        this.currentParElement.innerHTML = '';
+        this.currentStrokesElement.innerHTML = '';
+        return;
       }
     }
 
@@ -186,17 +200,18 @@ export default class App {
           this.scene.add(this.ball);
         }
       } else if (GAME_STATE[this.state] === 'LIVE_BALL') {
-        if (this.ball.withinRange(this.playerCoords) && !this.player.swinging) {
+        if (this.ball.withinRange(this.playerCoords) && !this.player.swinging && !this.ball.traveling) {
           this.state++;
           const rotationY = this.player.rotation.y + 3 / 2 * Math.PI;
+
           this.player.golfPosture();
           this.player.rotation.y = rotationY;
           this.player.position.set(this.ball.ballCoords.x, 0, this.ball.ballCoords.z);
         }
       } else if (GAME_STATE[this.state] === 'READY') {
         this.state--;
-        this.score++;
-        this.scoreElement.innerHTML = `Score: ${this.score}`;
+        this.currentStrokes++;
+        this.currentStrokesElement.innerHTML = `Current Strokes: ${this.currentStrokes}`;
         this.player.startSwing(this.ball, this.player.rotation.y);
       }
     }
@@ -211,8 +226,8 @@ export default class App {
     if (this.ball.live && !this.course.getCurrentHole().withinHole(this.ball.ballCoords)) {
       this.ball.traveling = false;
       this.ball.position.set(this.ball.initialPosition.x, this.ball.initialPosition.y, this.ball.initialPosition.z);
-      this.score++;
-      this.scoreElement.innerHTML = `Score: ${this.score}`;
+      this.currentStrokes++;
+      this.currentStrokesElement.innerHTML = `Current Strokes: ${this.currentStrokes}`;
     }
 
     if (this.ball.live) {
@@ -224,6 +239,17 @@ export default class App {
     this.renderer.render( this.scene, this.camera );
 
     requestAnimationFrame(() => this.render());
+  }
+
+  interpretScore(totalPar, totalStrokes) {
+    const temp = totalStrokes - totalPar;
+    if (temp === 0) {
+      return 'E';
+    } else if (temp > 0) {
+      return `+${temp}`;
+    } else {
+      return temp;
+    }
   }
 
   // resizeHandler() {

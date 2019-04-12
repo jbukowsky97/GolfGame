@@ -12,8 +12,16 @@
         padding-right: 20px;
         box-sizing: border-box;
       }
-      .score {
+      .total_score {
         text-align: left;
+      }
+      .current_par {
+        text-align: left;
+        top: 20px;
+      }
+      .current_strokes {
+        text-align: left;
+        top: 40px;
       }
       .distance {
         text-align: right;
@@ -26,7 +34,9 @@
   </head>
   <body>
     <div id="container">
-      <p class="score" id="score">Score: 0</p>
+      <p class="total_score" id="total_score">Total Score: E</p>
+      <p class="current_par" id="current_par">Current Par:</p>
+      <p class="current_strokes" id="current_strokes">Current Strokes: 0</p>
       <p class="distance" id="distance">Distance:</p>
       <p class="current_club" id="current_club"></p>
       <canvas id="mycanvas"></canvas>

@@ -13,7 +13,7 @@ const FLAG_POLE_HEIGHT = 6;
 const FLAG_HEIGHT = 1;
 const FLAG_DEPTH = 1;
 const FLAG_THICKNESS = FLAG_POLE_RADIUS;
-const HOLE_DISTANCE = 200;
+const HOLE_DISTANCE = 230;
 
 export default class HoleThree extends Group {
   constructor() {
@@ -146,5 +146,9 @@ export default class HoleThree extends Group {
   insideHole(coords, radius) {
     const distance = Math.sqrt(Math.pow(this.holeCoords.z - coords.z, 2), Math.pow(this.holeCoords.x - coords.x, 2));
     return distance <= HOLE_RADIUS - radius && coords.y === 0;
+  }
+
+  getPar() {
+    return 3;
   }
 }

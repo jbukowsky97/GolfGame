@@ -32,27 +32,6 @@ export default class GolfBall extends Group {
   }
 
   update() {
-    // this.position.x += this.speedX;
-    // this.position.y += this.speedY;
-    // this.position.z += this.speedZ;
-    // if (this.position.y === 0) {
-    //   this.speedX *= FRICTION;
-    //   this.speedZ *= FRICTION;
-    //   const absX = Math.abs(this.speedX);
-    //   const absZ = Math.abs(this.speedZ);
-    //   if (this.position.y === 0 && (absX > 0 || absZ > 0) && absX < 0.1 && absZ < 0.1) {
-    //     this.speedX = 0.0;
-    //     this.speedZ = 0.0;
-    //   }
-    // }
-    // if (this.position.y > 0 && !this.teed) {
-    //   this.speedY = this.speedY - GRAVITY;
-    // } else if (this.position.y < 0) {
-    //   this.position.y = 0;
-    //   this.speedY = 0.0;
-    //   this.speedX = 0.0;
-    //   this.speedZ = 0.0;
-    // }
     this.getWorldPosition(this.ballCoords);
     if (this.traveling) {
       const currentTime = new Date().getTime();
@@ -104,9 +83,15 @@ export default class GolfBall extends Group {
   }
 
   timeCrossedHole() {
-    const slope = (this.finalPosition.z - this.initialPosition.z) / (this.finalPosition.x - this.initialPosition.x);
+    let slope = (this.finalPosition.z - this.initialPosition.z) / (this.finalPosition.x - this.initialPosition.x);
     const b = this.initialPosition.z - slope * this.initialPosition.x;
-    const perpSlope = -1 / slope;
+    let perpSlope = -1 / slope;
+    if (Math.abs(slope) === Infinity) {
+      slope = Math.sign(slope) * 1000000;
+    }
+    if (Math.abs(perpSlope) === Infinity) {
+      perpSlope = Math.sign(perpSlope) * 1000000;
+    }
     const perpB = this.targetHole.z - perpSlope * this.targetHole.x;
     const xCoefficient = slope - perpSlope;
     const bDiff = perpB - b;

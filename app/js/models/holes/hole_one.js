@@ -157,4 +157,8 @@ export default class HoleOne extends Group {
     const distance = Math.sqrt(Math.pow(this.holeCoords.z - coords.z, 2), Math.pow(this.holeCoords.x - coords.x, 2));
     return distance <= HOLE_RADIUS - radius && coords.y === 0;
   }
+
+  getPar() {
+    return 4;
+  }
 }
