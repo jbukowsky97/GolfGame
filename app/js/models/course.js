@@ -1,6 +1,7 @@
 import { Group, BoxBufferGeometry, MeshPhongMaterial, Mesh, Vector3 } from 'three';
 import HoleOne from './holes/hole_one';
 import HoleTwo from './holes/hole_two';
+import HoleThree from './holes/hole_three';
 
 const FLOOR_WIDTH = 1000;
 const FLOOR_HEIGHT = 1;
@@ -24,11 +25,17 @@ export default class Course extends Group {
     this.holeTwo.position.set(-150, 0, -600);
     this.holeTwo.placeCoords();
 
+    this.holeThree = new HoleThree();
+    this.holeThree.rotation.y = -Math.PI / 2;
+    this.holeThree.position.set(-425, 0, -160);
+    this.holeThree.placeCoords();
+
     this.add(this.floor);
     this.add(this.holeOne);
     this.add(this.holeTwo);
+    this.add(this.holeThree);
 
-    this.holes = [this.holeOne, this.holeTwo];
+    this.holes = [this.holeOne, this.holeTwo, this.holeThree];
     this.currentHole = 0;
 
     const floorCoords = new Vector3();
