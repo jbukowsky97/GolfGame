@@ -143,26 +143,26 @@ export default class HoleTwo extends Group {
       back: greenCoords.z - GREEN_DEPTH / 2,
     };
 
-    this.holeCoords.x += greenCoords.x;
-    this.holeCoords.z += greenCoords.z;
+    this.holeCoords.x = greenCoords.x;
+    this.holeCoords.z = greenCoords.z;
 
     this.holeSquare = {
       left: worldCoords.x - FAIRWAY_WIDTH / 2 - ROUGH_WIDTH,
       right: worldCoords.x + FAIRWAY_WIDTH / 2 + ROUGH_WIDTH,
       front: worldCoords.z + FAIRWAY_DEPTH + FAIRWAY_WIDTH + ROUGH_WIDTH,
-      back: woorldCoords.z,
+      back: worldCoords.z,
     };
 
     this.holeSquare2 = {
-      left: woorldCoords.x + FAIRWAY_WIDTH / 2 - FAIRWAY_DEPTH_2,
-      right: woorldCoords.x + FAIRWAY_WIDTH / 2 + ROUGH_WIDTH,
+      left: worldCoords.x + FAIRWAY_WIDTH / 2 - FAIRWAY_DEPTH_2,
+      right: worldCoords.x + FAIRWAY_WIDTH / 2 + ROUGH_WIDTH,
       front: worldCoords.z + FAIRWAY_DEPTH + FAIRWAY_WIDTH + ROUGH_WIDTH,
-      back: woorldCoords.z + FAIRWAY_DEPTH - ROUGH_WIDTH,
+      back: worldCoords.z + FAIRWAY_DEPTH - ROUGH_WIDTH,
     };
   }
   
-  withinHole(object) {
-    return this.insideHole(object.position, this.holeSquare);
+  withinHole(position) {
+    return (this.insideSquare(position, this.holeSquare) || this.insideSquare(position, this.holeSquare2)) || position.y > 0.0;
   }
 
   insideSquare(coords, square) {

@@ -48,8 +48,8 @@ export default class App {
 
     this.player = new Player(this.camera);
     // this.player.position.z = -26.9;
-    this.player.position.set(-150, 0, -600);
-    this.player.rotation.y = Math.PI;
+    // this.player.position.set(-150, 0, -600);
+    // this.player.rotation.y = Math.PI;
     this.player.neutralPosture();
     this.player.updateClub(this.driver);
 
@@ -188,14 +188,13 @@ export default class App {
           this.state++;
           const rotationY = this.player.rotation.y + 3 / 2 * Math.PI;
           this.player.golfPosture();
-          this.player.rotation.y = rotationY
-          
+          this.player.rotation.y = rotationY;
           this.player.position.set(this.ball.ballCoords.x, 0, this.ball.ballCoords.z);
         }
       } else if (GAME_STATE[this.state] === 'READY') {
         this.state--;
         this.score++;
-        
+        this.scoreElement.innerHTML = `Score: ${this.score}`;
         this.player.startSwing(this.ball, this.player.rotation.y);
       }
     }
@@ -207,7 +206,7 @@ export default class App {
     this.ball.update();
 
     this.course.keepWithin(this.player);
-    if (!this.course.getCurrentHole().withinHole(this.ball.ballCoords)) {
+    if (this.ball.live && !this.course.getCurrentHole().withinHole(this.ball.ballCoords)) {
       this.ball.traveling = false;
       this.ball.position.set(this.ball.initialPosition.x, this.ball.initialPosition.y, this.ball.initialPosition.z);
       this.score++;

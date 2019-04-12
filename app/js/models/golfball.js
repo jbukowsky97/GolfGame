@@ -53,7 +53,7 @@ export default class GolfBall extends Group {
     //   this.speedX = 0.0;
     //   this.speedZ = 0.0;
     // }
-    this.ball.getWorldPosition(this.ballCoords);
+    this.getWorldPosition(this.ballCoords);
     if (this.traveling) {
       const currentTime = new Date().getTime();
       const ellapsed = currentTime - this.startClock;

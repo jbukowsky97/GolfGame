@@ -4,7 +4,7 @@ import HoleTwo from './holes/hole_two';
 
 const FLOOR_WIDTH = 1000;
 const FLOOR_HEIGHT = 1;
-const FLOOR_DEPTH = 2000;
+const FLOOR_DEPTH = 640;
 
 export default class Course extends Group {
   constructor() {
@@ -17,6 +17,8 @@ export default class Course extends Group {
     this.floor.position.set(0, -0.1, 10);
 
     this.holeOne = new HoleOne();
+    this.holeOne.placeCoords();
+
     this.holeTwo = new HoleTwo();
     this.holeTwo.rotation.y = Math.PI;
     this.holeTwo.position.set(-150, 0, -600);
@@ -27,7 +29,7 @@ export default class Course extends Group {
     this.add(this.holeTwo);
 
     this.holes = [this.holeOne, this.holeTwo];
-    this.currentHole = 1;
+    this.currentHole = 0;
 
     const floorCoords = new Vector3();
     this.floor.getWorldPosition(floorCoords);

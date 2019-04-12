@@ -84,53 +84,63 @@ export default class HoleOne extends Group {
     this.greenGroup.add(this.flagGroup);
     this.greenGroup.position.set(0, 0.01, -FAIRWAY_DEPTH + GREEN_DEPTH);
 
-    // const loader = new FontLoader();
-
-    // const _self = this;
-    // loader.load( 'fonts/helvetiker_regular.typeface.json', function ( font ) {
-    //   _self.geometry = new TextBufferGeometry( 'Hello three.js!', {
-    //     font: font,
-    //     size: 80,
-    //     height: 5,
-    //     curveSegments: 12,
-    //     bevelEnabled: true,
-    //     bevelThickness: 10,
-    //     bevelSize: 8,
-    //     bevelSegments: 5,
-    //   } );
-    // } );
-
-    // const fudge = new MeshPhongMaterial({ color: 0x1a4c1c });
-    // this.text = new Mesh(this.geometry, fudge);
-    // this.text.position.y = 0;
-
     this.add(this.fairway);
     this.add(this.leftRough);
     this.add(this.rightRough);
     this.add(this.teebox);
     this.add(this.greenGroup);
-    // this.add(this.text);
-
-    this.teeboxCoords = new Vector3();
-    this.teebox.getWorldPosition(this.teeboxCoords);
-
-    this.greenCoords = new Vector3();
-    this.greenGroup.getWorldPosition(this.greenCoords);
 
     this.holeCoords = new Vector3();
-    this.greenGroup.getWorldPosition(this.holeCoords);
 
     this.flagIn = true;
   }
 
+  placeCoords() {
+    const worldCoords = new Vector3();
+    this.getWorldPosition(worldCoords);
+
+    this.teeboxSquare = {
+      left: worldCoords.x + this.teebox.position.x - TEE_BOX_WIDTH / 2,
+      right: worldCoords.x + this.teebox.position.x + TEE_BOX_WIDTH / 2,
+      front: worldCoords.z + this.teebox.position.z,
+      back: worldCoords.z + this.teebox.position.z - TEE_BOX_DEPTH,
+    };
+
+    const greenX = worldCoords.x + this.greenGroup.position.x;
+    const greenZ = worldCoords.z + this.greenGroup.position.z;
+    this.greenSquare = {
+      left: greenX - GREEN_WIDTH / 2,
+      right: greenX + GREEN_WIDTH / 2,
+      front: greenZ + GREEN_DEPTH / 2,
+      back: greenZ - GREEN_DEPTH / 2,
+    };
+
+    this.holeCoords.x = greenX;
+    this.holeCoords.z = greenZ;
+
+    this.holeSquare = {
+      left: worldCoords.x - FAIRWAY_WIDTH / 2 - ROUGH_WIDTH,
+      right: worldCoords.x + FAIRWAY_WIDTH / 2 + ROUGH_WIDTH,
+      front: worldCoords.z,
+      back: worldCoords.z - FAIRWAY_DEPTH,
+    };
+  }
+
+  withinHole(position) {
+    return this.insideSquare(position, this.holeSquare) || position.y > 0.0;
+  }
+
+  insideSquare(coords, square) {
+    return (coords.x >= square.left && coords.x <= square.right
+      && coords.z <= square.front && coords.z >= square.back);
+  }
+
   insideTeeBox(coords) {
-    return (coords.x >= this.teeboxCoords.x - TEE_BOX_WIDTH / 2 && coords.x <= this.teeboxCoords.x + TEE_BOX_WIDTH / 2
-      && coords.z <= this.teeboxCoords.z && coords.z >= this.teeboxCoords.z - TEE_BOX_DEPTH);
+    return this.insideSquare(coords, this.teeboxSquare);
   }
 
   onGreen(coords) {
-    if (coords.x >= this.greenCoords.x - GREEN_WIDTH / 2 && coords.x <= this.greenCoords.x + GREEN_WIDTH / 2
-      && coords.z <= this.greenCoords.z + GREEN_DEPTH / 2 && coords.z >= this.greenCoords.z - GREEN_DEPTH / 2) {
+    if (this.insideSquare(coords, this.greenSquare)) {
       if (this.flagIn) {
         this.flagIn = false;
         this.greenGroup.remove(this.flagGroup);
