@@ -1,4 +1,5 @@
 import { Group, SphereBufferGeometry, MeshPhongMaterial, Mesh, Vector3, TextureLoader, RepeatWrapping } from 'three';
+import Arrow from './arrow';
 
 const BALL_RADIUS = .13;
 
@@ -15,6 +16,10 @@ export default class GolfBall extends Group {
     this.ball = new Mesh(ballGeometry, ballMaterial);
     this.ball.position.set(0, BALL_RADIUS, 0);
 
+    this.ballArrow = new Arrow(2, 10, 4, 0x165687);
+    this.ballArrow.rotation.z = Math.PI;
+    this.ballArrow.position.y = 50;
+
     this.add(this.ball);
 
     this.wind = {
@@ -23,12 +28,21 @@ export default class GolfBall extends Group {
     };
 
     this.traveling = false;
+    this.setArrow(true);
     
     this.live = false;
 
     this.ballCoords = new Vector3();
 
     this.inHole = false;
+  }
+
+  setArrow(visible) {
+    if (visible) {
+      this.add(this.ballArrow);
+    } else {
+      this.remove(this.ballArrow);
+    }
   }
 
   getHeight(x) {
@@ -51,6 +65,7 @@ export default class GolfBall extends Group {
       if (ellapsed / this.time >= this.ratioCrossedHole) {
         this.inHole = true;
         this.traveling = false;
+        this.setArrow(true);
       }
       if (ellapsed < this.time) {
         this.position.x = this.initialPosition.x + this.distanceX * ellapsed / this.time + this.getWindX(ellapsed / this.time);
@@ -61,6 +76,7 @@ export default class GolfBall extends Group {
         this.position.z = this.finalPosition.z;
         this.position.y = 0;
         this.traveling = false;
+        this.setArrow(true);
       }
     }
   }
@@ -86,6 +102,7 @@ export default class GolfBall extends Group {
     this.initialPosition = { ...this.position };
     this.finalPosition = new Vector3(this.initialPosition.x + this.distanceX + this.windX, this.initialPosition.y, this.initialPosition.z + this.distanceZ + this.windZ);
     this.traveling = true;
+    this.setArrow(false);
     this.startClock = new Date().getTime();
     this.ratioCrossedHole = this.timeCrossedHole();
   }
