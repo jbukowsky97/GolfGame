@@ -28,8 +28,10 @@ export default class App {
     this.currentStrokesElement = document.getElementById("current_strokes");
     this.distanceElement = document.getElementById('distance');
     this.windElement = document.getElementById('wind');
+    this.gameOverElement = document.getElementById('game_over');
     this.renderer = new THREE.WebGLRenderer({canvas: c, antialias: true});
     this.renderer.setSize( window.innerWidth - 20, window.innerHeight - 20 );
+    this.screenRatio = (window.innerHeight - 20) / (window.innerWidth - 20);
     this.scene = new THREE.Scene();
     this.scene.background = new THREE.Color( 0xe2fdff );
     this.camera = new THREE.PerspectiveCamera( 75, (window.innerWidth - 20) / (window.innerHeight - 20), 0.1, 1000 );
@@ -131,9 +133,9 @@ export default class App {
       _self.keys = _self.keys.filter(kc => kc != keyCode);
     }
 
-    // window.addEventListener('resize', () => this.resizeHandler());
+    window.addEventListener('resize', () => this.resizeHandler());
 
-    // this.resizeHandler();
+    this.resizeHandler();
     requestAnimationFrame(() => this.render());
 
     this.prevTime = new Date().getTime();
@@ -165,6 +167,11 @@ export default class App {
       } else {
         this.currentParElement.innerHTML = '';
         this.currentStrokesElement.innerHTML = '';
+        if (this.totalStrokes < this.totalPar) {
+          this.gameOverElement.innerHTML = 'You Win!';
+        } else {
+          this.gameOverElement.innerHTML = 'You Win!';
+        }
         return;
       }
     }
@@ -273,18 +280,11 @@ export default class App {
     }
   }
 
-  // resizeHandler() {
-  //   const canvas = document.getElementById("mycanvas");
-  //   let w = window.innerWidth - 16;
-  //   let h = 0.75 * w;  /* maintain 4:3 ratio */
-  //   if (canvas.offsetTop + h > window.innerHeight) {
-  //     h = window.innerHeight - canvas.offsetTop - 16;
-  //     w = 4/3 * h;
-  //   }
-  //   canvas.width = w;
-  //   canvas.height = h;
-  //   this.camera.updateProjectionMatrix();
-  //   this.renderer.setSize(w, h);
-  //   this.tracker.handleResize();
-  // }
+  resizeHandler() {
+    const canvas = document.getElementById("mycanvas");
+    canvas.width = window.innerWidth - 20;
+    canvas.height = canvas.width * this.screenRatio;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(canvas.width, canvas.height);
+  }
 }

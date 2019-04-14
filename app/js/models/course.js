@@ -1,4 +1,4 @@
-import { Group, BoxBufferGeometry, MeshPhongMaterial, Mesh, Vector3 } from 'three';
+import { Group, BoxBufferGeometry, MeshPhongMaterial, Mesh, Vector3, TextureLoader, RepeatWrapping } from 'three';
 import HoleOne from './holes/hole_one';
 import HoleTwo from './holes/hole_two';
 import HoleThree from './holes/hole_three';

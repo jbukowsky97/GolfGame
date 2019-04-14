@@ -1,4 +1,4 @@
-import { Group, SphereBufferGeometry, MeshPhongMaterial, Mesh, Vector3 } from 'three';
+import { Group, SphereBufferGeometry, MeshPhongMaterial, Mesh, Vector3, TextureLoader, RepeatWrapping } from 'three';
 
 const BALL_RADIUS = .13;
 
@@ -8,8 +8,10 @@ export default class GolfBall extends Group {
   constructor(wind) {
     super();
 
+    const golfballTexture = new TextureLoader().load( "textures/golf_ball_texture.jpeg" );
+
     const ballGeometry = new SphereBufferGeometry(BALL_RADIUS);
-    const ballMaterial = new MeshPhongMaterial({ color: 0xefefef });
+    const ballMaterial = new MeshPhongMaterial({ color: 0xefefef, map: golfballTexture });
     this.ball = new Mesh(ballGeometry, ballMaterial);
     this.ball.position.set(0, BALL_RADIUS, 0);
 

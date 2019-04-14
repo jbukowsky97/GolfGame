@@ -8,7 +8,7 @@ export default class Tee extends Group {
     super();
 
     const teeGeometry = new ConeBufferGeometry(TEE_RADIUS, TEE_HEIGHT);
-    const teeMaterial = new MeshPhongMaterial({ color: 0xafecff });
+    const teeMaterial = new MeshPhongMaterial({ color: 0xc1a376 });
     this.tee = new Mesh(teeGeometry, teeMaterial);
     this.tee.rotation.x = Math.PI;
     this.tee.position.set(0, 0, 0);

@@ -1,4 +1,4 @@
-import { MeshPhongMaterial, Mesh, Group, BoxBufferGeometry, SphereBufferGeometry, ConeBufferGeometry, Vector3 } from 'three';
+import { MeshPhongMaterial, Mesh, Group, BoxBufferGeometry, SphereBufferGeometry, ConeBufferGeometry, TextureLoader, RepeatWrapping } from 'three';
 import Font from './font';
 
 const LEG_HEIGHT = 1.1;
