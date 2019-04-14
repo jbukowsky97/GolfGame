@@ -4,11 +4,8 @@ const BALL_RADIUS = .13;
 
 const RANGE = 5;
 
-const GRAVITY = .008;
-const FRICTION = .98;
-
 export default class GolfBall extends Group {
-  constructor() {
+  constructor(wind) {
     super();
 
     const ballGeometry = new SphereBufferGeometry(BALL_RADIUS);
@@ -17,6 +14,11 @@ export default class GolfBall extends Group {
     this.ball.position.set(0, BALL_RADIUS, 0);
 
     this.add(this.ball);
+
+    this.wind = {
+      x: wind.x / 100.0,
+      z: wind.z / 100.0,
+    };
 
     this.traveling = false;
     
@@ -31,6 +33,14 @@ export default class GolfBall extends Group {
     return this.height * (-4 * Math.pow(x, 2) + 4 * x);
   }
 
+  getWindX(x) {
+    return this.windX * Math.pow(x, 3);
+  }
+
+  getWindZ(x) {
+    return this.windZ * Math.pow(x, 3);
+  }
+
   update() {
     this.getWorldPosition(this.ballCoords);
     if (this.traveling) {
@@ -41,12 +51,12 @@ export default class GolfBall extends Group {
         this.traveling = false;
       }
       if (ellapsed < this.time) {
-        this.position.x = this.initialPosition.x + this.distanceX * ellapsed / this.time;
-        this.position.z = this.initialPosition.z + this.distanceZ * ellapsed / this.time;
+        this.position.x = this.initialPosition.x + this.distanceX * ellapsed / this.time + this.getWindX(ellapsed / this.time);
+        this.position.z = this.initialPosition.z + this.distanceZ * ellapsed / this.time + this.getWindZ(ellapsed / this.time);
         this.position.y = this.initialPosition.y + this.getHeight(ellapsed / this.time);
       } else {
-        this.position.x = this.initialPosition.x + this.distanceX;
-        this.position.z = this.initialPosition.z + this.distanceZ;
+        this.position.x = this.finalPosition.x;
+        this.position.z = this.finalPosition.z;
         this.position.y = 0;
         this.traveling = false;
       }
@@ -58,14 +68,21 @@ export default class GolfBall extends Group {
     this.targetHoleRadius = holeRadius;
   }
 
-  setTravel(distance, angle, height, time) {
+  setTravel(distance, angle, height, time, wind) {
     this.distance = distance;
     this.distanceX = distance * -Math.cos(angle);
     this.distanceZ = distance * Math.sin(angle);
+    if (wind) {
+      this.windX = Math.abs(distance) * this.wind.x;
+      this.windZ = Math.abs(distance) * this.wind.z;
+    } else {
+      this.windX = 0;
+      this.windZ = 0;
+    }
     this.height = height;
     this.time = time;
     this.initialPosition = { ...this.position };
-    this.finalPosition = new Vector3(this.initialPosition.x + this.distanceX, this.initialPosition.y, this.initialPosition.z + this.distanceZ);
+    this.finalPosition = new Vector3(this.initialPosition.x + this.distanceX + this.windX, this.initialPosition.y, this.initialPosition.z + this.distanceZ + this.windZ);
     this.traveling = true;
     this.startClock = new Date().getTime();
     this.ratioCrossedHole = this.timeCrossedHole();

@@ -8,6 +8,7 @@ import GolfBall from './models/golfball';
 import Tee from './models/tee';
 import Putter from './models/putter';
 import Course from './models/course';
+import Arrow from './models/arrow';
 
 const PLAYER_SPEED = 0.04;
 const PLAYER_ROTATION_SPEED = 0.002;
@@ -26,6 +27,7 @@ export default class App {
     this.currentParElement = document.getElementById("current_par");
     this.currentStrokesElement = document.getElementById("current_strokes");
     this.distanceElement = document.getElementById('distance');
+    this.windElement = document.getElementById('wind');
     this.renderer = new THREE.WebGLRenderer({canvas: c, antialias: true});
     this.renderer.setSize( window.innerWidth - 20, window.innerHeight - 20 );
     this.scene = new THREE.Scene();
@@ -38,12 +40,29 @@ export default class App {
 
     this.course = new Course();
 
+    this.wind = {
+      x: Math.random() * 20 - 10,
+      z: Math.random() * 20 - 10,
+    };
+
+    this.windElement.innerHTML = `Wind: ${Math.sqrt(Math.pow(this.wind.x, 2) + Math.pow(this.wind.z, 2)).toFixed(2)} mph`
+
+    this.windArrow = new Arrow();
+    this.windArrow.position.set(-100, 100, -320);
+    if (Math.sign(this.wind.x) === 1) {
+      this.windArrow.rotation.z = -Math.PI / 2 + Math.atan(-this.wind.z / this.wind.x);
+    } else if (Math.sign(this.wind.z) === -1) {
+      this.windArrow.rotation.z = Math.PI / 2 + Math.atan(-this.wind.z / this.wind.x);
+    } else {
+      this.windArrow.rotation.z = Math.PI / 2 + Math.atan(-this.wind.z / this.wind.x);
+    }
+
     this.driver = new Driver();
     this.iron = new Iron();
     this.wedge = new Wedge();
     this.putter = new Putter();
 
-    this.ball = new GolfBall();
+    this.ball = new GolfBall(this.wind);
     this.ball.setTarget(this.course.getCurrentHole().holeCoords);
 
     this.tee = new Tee();
@@ -57,8 +76,9 @@ export default class App {
     this.player.neutralPosture();
     this.player.updateClub(this.driver);
 
-    this.scene.add(this.player);
     this.scene.add(this.course);
+    this.scene.add(this.windArrow);
+    this.scene.add(this.player);
 
     this.ambientLight = new THREE.AmbientLight( 0x404040 );
     this.scene.add( this.ambientLight );
@@ -204,6 +224,7 @@ export default class App {
           this.state++;
           const rotationY = this.player.rotation.y + 3 / 2 * Math.PI;
 
+          this.player.stopWalking();
           this.player.golfPosture();
           this.player.rotation.y = rotationY;
           this.player.position.set(this.ball.ballCoords.x, 0, this.ball.ballCoords.z);
