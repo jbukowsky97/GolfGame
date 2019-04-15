@@ -50,11 +50,11 @@ export default class GolfBall extends Group {
   }
 
   getWindX(x) {
-    return this.windX * Math.pow(x, 3);
+    return this.windX * Math.pow(x, 2);
   }
 
   getWindZ(x) {
-    return this.windZ * Math.pow(x, 3);
+    return this.windZ * Math.pow(x, 2);
   }
 
   update() {
