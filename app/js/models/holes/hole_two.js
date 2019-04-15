@@ -147,8 +147,7 @@ export default class HoleTwo extends Group {
   }
 
   placeCoords() {
-    const worldCoords = new Vector3();
-    this.getWorldPosition(worldCoords);
+    const worldCoords = this.position;
 
     const teeboxCoords = new Vector3();
     teeboxCoords.x = worldCoords.x + this.teebox.position.x;

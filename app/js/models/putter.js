@@ -1,22 +1,21 @@
-import { MeshPhongMaterial, Mesh, Group, CylinderBufferGeometry, Shape, ExtrudeBufferGeometry} from 'three';
+import { MeshPhongMaterial, Mesh, Group, CylinderBufferGeometry, Shape, ExtrudeBufferGeometry, BoxBufferGeometry} from 'three';
 import Club from './club';
 
 const SHAFT_RADIUS_TOP = 0.028;
 const SHAFT_RADIUS_BOTTOM = 0.025
-// const SHAFT_HEIGHT = 1.1;
-const SHAFT_HEIGHT = .9;
+const SHAFT_HEIGHT = 1.1;
 const GRIP_HEIGHT = 0.4;
 const GRIP_RADIUS_TOP = 0.032;
 const GRIP_RADIUS_BOTTOM = 0.03;
 
-const PUTTER_WIDTH = .33;
-const PUTTER_HEIGHT_MIDDLE = .2
+const PUTTER_WIDTH = .4;
+const PUTTER_HEIGHT_MIDDLE = .15
 const PUTTER_THICKNESS = .1;
 
-const HEAD_ROTATION_Z = 0.5;
-const HEAD_ROTATION_X = 0.15;
+const HEAD_ROTATION_Z = 0.4;
+const HEAD_ROTATION_X = 0.05;
 
-const PUTTER_DISTANCE = 20;
+const PUTTER_DISTANCE = 27.5;
 const PUTTER_HEIGHT = 0;
 const PUTTER_TIME = 1000;
 
@@ -35,25 +34,10 @@ export default class Putter extends Club {
     this.shaft = new Mesh(shaftGeometry, shaftMaterial);
     this.shaft.position.set(0, -SHAFT_HEIGHT / 2 - GRIP_HEIGHT / 2, 0);
 
-    var headShape = new Shape();
-    headShape.moveTo(0, 0);
-    headShape.lineTo(PUTTER_WIDTH / 3, -PUTTER_HEIGHT_MIDDLE / 2);
-    headShape.lineTo(PUTTER_WIDTH * 2 / 3, -PUTTER_HEIGHT_MIDDLE / 2);
-    headShape.lineTo(PUTTER_WIDTH, 0);
-    headShape.lineTo(PUTTER_WIDTH * 2 / 3, PUTTER_HEIGHT_MIDDLE / 2);
-    headShape.lineTo(PUTTER_WIDTH / 3, PUTTER_HEIGHT_MIDDLE / 2);
-    headShape.lineTo(0, 0);
-
-    var headSettings = {
-      steps: 2,
-      depth: PUTTER_THICKNESS,
-      bevelEnabled: false
-    };
-
-    const headGeometry = new ExtrudeBufferGeometry( headShape, headSettings );
-    const headMaterial = new MeshPhongMaterial( { color: 0x00ff00 } ); //0xe8e8e8
+    const headGeometry = new BoxBufferGeometry(PUTTER_WIDTH, PUTTER_HEIGHT_MIDDLE, PUTTER_THICKNESS);
+    const headMaterial = new MeshPhongMaterial( { color: 0xe8e8e8 } );
     this.head = new Mesh(headGeometry, headMaterial) ;
-    this.head.position.set(-SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2, -PUTTER_THICKNESS / 2);
+    this.head.position.set(PUTTER_WIDTH / 2 - SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2, 0);
     this.head.rotation.z = -HEAD_ROTATION_Z;
     this.head.rotation.x = HEAD_ROTATION_X;
 

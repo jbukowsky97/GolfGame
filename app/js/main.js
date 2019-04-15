@@ -148,7 +148,9 @@ export default class App {
       this.currentParElement.innerHTML = '';
       this.currentStrokesElement.innerHTML = '';
       this.distanceElement.innerHTML = '';
-      if (this.totalStrokes < this.totalPar) {
+      if (this.totalPar - this.totalStrokes >= 4) {
+        this.gameOverElement.innerHTML = 'You Have Made Tiger Proud!';
+      } else if (this.totalStrokes < this.totalPar) {
         this.gameOverElement.innerHTML = 'You Win!';
       } else {
         this.gameOverElement.innerHTML = 'You Lose';
@@ -160,7 +162,7 @@ export default class App {
     const delta = currentTime - this.prevTime;
     this.prevTime = currentTime;
 
-    this.player.getWorldPosition(this.playerCoords);
+    this.playerCoords = this.player.position;
     this.course.getCurrentHole().onGreen(this.playerCoords);
 
     if (this.ball.inHole) {

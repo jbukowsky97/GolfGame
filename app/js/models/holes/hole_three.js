@@ -99,8 +99,7 @@ export default class HoleThree extends Group {
   }
 
   placeCoords() {
-    const worldCoords = new Vector3();
-    this.getWorldPosition(worldCoords);
+    const worldCoords = this.position;
 
     this.teeboxSquare = {
       left: worldCoords.x - this.teebox.position.z,

@@ -3,17 +3,16 @@ import Club from './club';
 
 const SHAFT_RADIUS_TOP = 0.028;
 const SHAFT_RADIUS_BOTTOM = 0.025
-// const SHAFT_HEIGHT = 1.1;
-const SHAFT_HEIGHT = .9;
+const SHAFT_HEIGHT = 1;
 const GRIP_HEIGHT = 0.4;
 const GRIP_RADIUS_TOP = 0.032;
 const GRIP_RADIUS_BOTTOM = 0.03;
 
-const DRIVER_WIDTH = .33;
-const DRIVER_HEIGHT_MIDDLE = .2
-const DRIVER_THICKNESS = .1;
+const DRIVER_WIDTH = .4;
+const DRIVER_HEIGHT_MIDDLE = .25
+const DRIVER_THICKNESS = .2;
 
-const HEAD_ROTATION_Z = 0.5;
+const HEAD_ROTATION_Z = 0.4;
 const HEAD_ROTATION_X = 0.15;
 
 const DRIVER_DISTANCE = 385;
@@ -35,7 +34,7 @@ export default class Driver extends Club {
     this.shaft = new Mesh(shaftGeometry, shaftMaterial);
     this.shaft.position.set(0, -SHAFT_HEIGHT / 2 - GRIP_HEIGHT / 2, 0);
 
-    var headShape = new Shape();
+    const headShape = new Shape();
     headShape.moveTo(0, 0);
     headShape.lineTo(DRIVER_WIDTH / 3, -DRIVER_HEIGHT_MIDDLE / 2);
     headShape.lineTo(DRIVER_WIDTH * 2 / 3, -DRIVER_HEIGHT_MIDDLE / 2);
@@ -44,16 +43,17 @@ export default class Driver extends Club {
     headShape.lineTo(DRIVER_WIDTH / 3, DRIVER_HEIGHT_MIDDLE / 2);
     headShape.lineTo(0, 0);
 
-    var headSettings = {
+    const headSettings = {
       steps: 2,
       depth: DRIVER_THICKNESS,
       bevelEnabled: false
     };
 
     const headGeometry = new ExtrudeBufferGeometry( headShape, headSettings );
+    headGeometry.translate(-DRIVER_WIDTH / 2, 0, 0);
     const headMaterial = new MeshPhongMaterial( { color: 0xe8e8e8 } );
     this.head = new Mesh(headGeometry, headMaterial) ;
-    this.head.position.set(-SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2, -DRIVER_THICKNESS / 2);
+    this.head.position.set(DRIVER_WIDTH / 2 - SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2, -DRIVER_THICKNESS / 4);
     this.head.rotation.z = -HEAD_ROTATION_Z;
     this.head.rotation.x = HEAD_ROTATION_X;
 
@@ -63,7 +63,7 @@ export default class Driver extends Club {
     this.driverGroup.add(this.head);
 
     this.driverGroup.rotation.z = HEAD_ROTATION_Z;
-    this.driverGroup.rotation.y = 1.5708;
+    this.driverGroup.rotation.y = Math.PI / 2;
 
     this.add(this.driverGroup);
   }

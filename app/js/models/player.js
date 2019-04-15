@@ -158,7 +158,8 @@ export default class Player extends Group {
     if (this.inGolfPosture) {
       this.leftArmAndClub.remove(oldClub);
       this.leftArmAndClub.add(this.club);
-      this.club.position.set(.11, -ARM_HEIGHT, 0);
+      this.club.position.set(.05, -ARM_HEIGHT, 0);
+      this.club.rotation.z = CLUB_THETA;
     }
     this.currentClubElement.innerHTML = `${this.club.getName()}: ${(this.club.getDistance() / YARD).toFixed(1)} yards`
   }
@@ -173,7 +174,7 @@ export default class Player extends Group {
     this.pivotGroup.position.set(.2, 0, 1.3);
 
     this.leftArmAndClub.add(this.club);
-    this.club.position.set(.11, -ARM_HEIGHT, 0);
+    this.club.position.set(.05, -ARM_HEIGHT, 0);
 
     this.leftArmTheta = ARM_THETA;
     this.rightArmTheta = ARM_THETA;

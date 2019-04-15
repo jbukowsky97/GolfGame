@@ -3,18 +3,18 @@ import Club from './club';
 
 const SHAFT_RADIUS_TOP = 0.028;
 const SHAFT_RADIUS_BOTTOM = 0.025
-// const SHAFT_HEIGHT = 1.1;
-const SHAFT_HEIGHT = .9;
+const SHAFT_HEIGHT = 1.1;
 const GRIP_HEIGHT = 0.4;
 const GRIP_RADIUS_TOP = 0.032;
 const GRIP_RADIUS_BOTTOM = 0.03;
 
-const IRON_WIDTH = .33;
+const IRON_WIDTH = .4;
 const IRON_HEIGHT_MIDDLE = .2
-const IRON_THICKNESS = .1;
+const IRON_HEIGHT_END = .2;
+const IRON_THICKNESS = .05;
 
-const HEAD_ROTATION_Z = 0.5;
-const HEAD_ROTATION_X = 0.15;
+const HEAD_ROTATION_Z = 0.4;
+const HEAD_ROTATION_X = 0.45;
 
 const IRON_DISTANCE = 275;
 const IRON_HEIGHT = 55;
@@ -35,25 +35,24 @@ export default class Iron extends Club {
     this.shaft = new Mesh(shaftGeometry, shaftMaterial);
     this.shaft.position.set(0, -SHAFT_HEIGHT / 2 - GRIP_HEIGHT / 2, 0);
 
-    var headShape = new Shape();
+    const headShape = new Shape();
     headShape.moveTo(0, 0);
-    headShape.lineTo(IRON_WIDTH / 3, -IRON_HEIGHT_MIDDLE / 2);
-    headShape.lineTo(IRON_WIDTH * 2 / 3, -IRON_HEIGHT_MIDDLE / 2);
+    headShape.lineTo(IRON_WIDTH / 2, IRON_HEIGHT_MIDDLE);
+    headShape.lineTo(IRON_WIDTH, IRON_HEIGHT_END);
     headShape.lineTo(IRON_WIDTH, 0);
-    headShape.lineTo(IRON_WIDTH * 2 / 3, IRON_HEIGHT_MIDDLE / 2);
-    headShape.lineTo(IRON_WIDTH / 3, IRON_HEIGHT_MIDDLE / 2);
     headShape.lineTo(0, 0);
 
-    var headSettings = {
+    const headSettings = {
       steps: 2,
       depth: IRON_THICKNESS,
       bevelEnabled: false
     };
 
     const headGeometry = new ExtrudeBufferGeometry( headShape, headSettings );
-    const headMaterial = new MeshPhongMaterial( { color: 0x0000ff } ); //0xe8e8e8
+    headGeometry.translate(-IRON_WIDTH / 2, 0, 0);
+    const headMaterial = new MeshPhongMaterial( { color: 0xe8e8e8 } );
     this.head = new Mesh(headGeometry, headMaterial) ;
-    this.head.position.set(-SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2, -IRON_THICKNESS / 2);
+    this.head.position.set(IRON_WIDTH / 2 - SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2 - .05, -IRON_THICKNESS / 2 - SHAFT_RADIUS_BOTTOM);
     this.head.rotation.z = -HEAD_ROTATION_Z;
     this.head.rotation.x = HEAD_ROTATION_X;
 
@@ -63,7 +62,7 @@ export default class Iron extends Club {
     this.driverGroup.add(this.head);
 
     this.driverGroup.rotation.z = HEAD_ROTATION_Z;
-    this.driverGroup.rotation.y = 1.5708;
+    this.driverGroup.rotation.y = Math.PI / 2;
 
     this.add(this.driverGroup);
   }
