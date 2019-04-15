@@ -237,7 +237,12 @@ export default class App {
         } else if (GAME_STATE[this.state] === 'LIVE_BALL') {
           if (this.ball.withinRange(this.playerCoords) && !this.player.swinging && !this.ball.traveling) {
             this.state++;
-            const rotationY = this.player.rotation.y + 3 / 2 * Math.PI;
+            let rotationY;
+            if (this.player.inGolfPosture) {
+              rotationY = this.player.rotation.y;
+            } else {
+              rotationY = this.player.rotation.y + 3 / 2 * Math.PI;
+            }
 
             this.player.stopWalking();
             this.player.golfPosture();

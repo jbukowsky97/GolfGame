@@ -2,11 +2,11 @@
 <html>
   <head>
     <meta charset=utf-8>
-    <title>My first three.js app</title>
+    <title>MGolf</title>
     <style>
       body { margin: 0; }
       canvas { width: 100%; height: 100%; }
-      p {
+      .overlay {
         position: absolute;
         width: 100%;
         padding-right: 20px;
@@ -46,14 +46,32 @@
   </head>
   <body>
     <div id="container">
-      <p class="total_score" id="total_score">Total Score: E</p>
-      <p class="current_par" id="current_par">Current Par:</p>
-      <p class="current_strokes" id="current_strokes">Current Strokes: 0</p>
-      <p class="distance" id="distance">Distance:</p>
-      <p class="current_club" id="current_club"></p>
-      <p class="wind" id="wind"></p>
+      <p class="overlay total_score" id="total_score">Total Score: E</p>
+      <p class="overlay current_par" id="current_par">Current Par:</p>
+      <p class="overlay current_strokes" id="current_strokes">Current Strokes: 0</p>
+      <p class="overlay distance" id="distance">Distance:</p>
+      <p class="overlay current_club" id="current_club"></p>
+      <p class="overlay wind" id="wind"></p>
       <h2 class="game_over" id="game_over"></h2>
       <canvas id="mycanvas"></canvas>
+      <h2>How to Play:</h2>
+      <h3>Goal</h3>
+      <p>Get the ball into all three holes in as few strokes as possble</p>
+      <h3>Winning</h3>
+      <p>Win by scoring under par</p>
+      <h3>Movement</h3>
+      <p>Move your character with WASD</p>
+      <h3>Switch Clubs</h3>
+      <p>Switch clubs with numbers 1 - 4 (Driver, Iron, Wedge, Putter)</p>
+      <h3>Gameplay</h3>
+      <h4>1. Tee Ball</h4>
+      <p>Tee the ball up anywhere in the current hole's teebox by pressing E</p>
+      <h4>2. Address Ball</h4>
+      <p>Once close enough, you can address the ball with E</p>
+      <h4>3. Hit Ball</h4>
+      <p>Hold E to perform your backswing and release to start your downswing. The larger your backswing the further the ball will go</p>
+      <h3>4. Repeat</h3>
+      <p>Repeat Steps 2 & 3 until you get the ball into the hole, and then head to the next tee box and re-tee</p>
     </div>
   </body>
   </html>
