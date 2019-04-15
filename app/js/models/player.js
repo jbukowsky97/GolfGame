@@ -170,6 +170,8 @@ export default class Player extends Group {
 
     this.camera.position.set(8, 4, 0);
     this.camera.rotation.y = Math.PI / 2;
+    // this.camera.position.set(0, 4, -8);
+    // this.camera.rotation.y = Math.PI;
 
     this.pivotGroup.position.set(.2, 0, 1.3);
 

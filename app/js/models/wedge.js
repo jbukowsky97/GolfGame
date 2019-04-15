@@ -49,17 +49,19 @@ export default class Wedge extends Club {
     };
 
     const headGeometry = new ExtrudeBufferGeometry( headShape, headSettings );
-    headGeometry.translate(-WEDGE_WIDTH / 2, 0, 0);
     const headMaterial = new MeshPhongMaterial( { color: 0xe8e8e8 } );
     this.head = new Mesh(headGeometry, headMaterial) ;
-    this.head.position.set(WEDGE_WIDTH / 2 - SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2 - .03, -WEDGE_THICKNESS / 2 - SHAFT_RADIUS_BOTTOM);
-    this.head.rotation.z = -HEAD_ROTATION_Z;
     this.head.rotation.x = HEAD_ROTATION_X;
+
+    this.headGroup = new Group();
+    this.headGroup.add(this.head);
+    this.headGroup.position.set(-SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2, -SHAFT_RADIUS_BOTTOM / 2);
+    this.headGroup.rotation.z = -HEAD_ROTATION_Z;
 
     this.driverGroup = new Group();
     this.driverGroup.add(this.grip);
     this.driverGroup.add(this.shaft);
-    this.driverGroup.add(this.head);
+    this.driverGroup.add(this.headGroup);
 
     this.driverGroup.rotation.z = HEAD_ROTATION_Z;
     this.driverGroup.rotation.y = Math.PI / 2;

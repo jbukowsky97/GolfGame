@@ -37,14 +37,17 @@ export default class Putter extends Club {
     const headGeometry = new BoxBufferGeometry(PUTTER_WIDTH, PUTTER_HEIGHT_MIDDLE, PUTTER_THICKNESS);
     const headMaterial = new MeshPhongMaterial( { color: 0xe8e8e8 } );
     this.head = new Mesh(headGeometry, headMaterial) ;
-    this.head.position.set(PUTTER_WIDTH / 2 - SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2, 0);
-    this.head.rotation.z = -HEAD_ROTATION_Z;
     this.head.rotation.x = HEAD_ROTATION_X;
+
+    this.headGroup = new Group();
+    this.headGroup.add(this.head);
+    this.headGroup.position.set(PUTTER_WIDTH / 2 - SHAFT_RADIUS_BOTTOM / 2, -SHAFT_HEIGHT - GRIP_HEIGHT / 2, 0);
+    this.headGroup.rotation.z = -HEAD_ROTATION_Z;
 
     this.driverGroup = new Group();
     this.driverGroup.add(this.grip);
     this.driverGroup.add(this.shaft);
-    this.driverGroup.add(this.head);
+    this.driverGroup.add(this.headGroup);
 
     this.driverGroup.rotation.z = HEAD_ROTATION_Z;
     this.driverGroup.rotation.y = 1.5708;
