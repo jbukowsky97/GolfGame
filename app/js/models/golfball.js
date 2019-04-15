@@ -137,7 +137,7 @@ export default class GolfBall extends Group {
     const distanceFromInitial = Math.sqrt(Math.pow(this.targetHole.z - this.initialPosition.z, 2) + Math.pow(this.targetHole.x - this.initialPosition.x, 2));
     const ratio = distanceFromInitial / this.distance;
     if (distance < this.targetHoleRadius && ratio <= 1 + this.targetHoleRadius && this.getHeight(ratio) <= 0.0 && distanceFromInitial / (this.distance + this.targetHoleRadius) >= 0.3) {
-      return 2;
+      return distanceFromInitial / (this.distance + this.targetHoleRadius);
     } else {
       return undefined;
     }
