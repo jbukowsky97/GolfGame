@@ -149,7 +149,7 @@ export default class App {
       this.currentStrokesElement.innerHTML = '';
       this.distanceElement.innerHTML = '';
       if (this.totalPar - this.totalStrokes >= 4) {
-        this.gameOverElement.innerHTML = 'You Have Made Tiger Proud!';
+        this.gameOverElement.innerHTML = 'Tiger Woods Would Be Proud!';
       } else if (this.totalStrokes < this.totalPar) {
         this.gameOverElement.innerHTML = 'You Win!';
       } else {
